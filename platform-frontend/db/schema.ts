@@ -1,13 +1,5 @@
-import { pgTable, serial, text, integer, varchar, timestamp, vector } from "drizzle-orm/pg-core";
-
-// 1. Travelers & their AI Embeddings
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  bio: text("bio").notNull(),
-  // Assuming a 768-dimension vector (standard for many modern embedding models)
-  embedding: vector("embedding", { dimensions: 768 }), 
-});
+import { pgTable, serial, text, integer, varchar, timestamp } from "drizzle-orm/pg-core";
+import { users } from "../auth-schema";
 
 // 2. Pre-seeded Properties (The Supply)
 export const properties = pgTable("properties", {
@@ -31,6 +23,6 @@ export const pods = pgTable("pods", {
 export const podMembers = pgTable("pod_members", {
   id: serial("id").primaryKey(),
   podId: integer("pod_id").references(() => pods.id).notNull(),
-  userId: integer("user_id").references(() => users.id).notNull(),
+  userId: text("user_id").references(() => users.id).notNull(),
   joinedAt: timestamp("joined_at").defaultNow(),
 });

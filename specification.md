@@ -6,7 +6,7 @@ A prototype travel platform designed to optimize long-term stays for digital nom
 ## 2. Technical Stack
 * **Frontend & Internal API:** Next.js (TypeScript, App Router)
 * **Styling:** Tailwind CSS (with shadcn/ui for rapid component scaffolding)
-* **Authentication:** `better-auth` (Configured for single-provider OAuth like Google, or a hardcoded "Demo Login" bypass)
+* **Authentication:** `better-auth` (Configured for Email and Password authentication)
 * **Database:** Neon.tech (Serverless Postgres with the `pgvector` extension)
 * **ORM:** Drizzle ORM *(Schema definition pending next phase)*
 * **AI Microservice:** FastAPI (Python)
