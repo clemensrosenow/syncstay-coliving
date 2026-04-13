@@ -56,7 +56,7 @@ export const userProfiles = pgTable("user_profiles", {
   birthday: date("birthday"),
 
   bio: text("bio"),
-  embedding: vector("embedding", { dimensions: 768 }),
+  embedding: vector("embedding", { dimensions: 3072 }),
 
   chronotype: chronotypeEnum("chronotype"),
   workStartHour: smallint("work_start_hour"), // 0-23

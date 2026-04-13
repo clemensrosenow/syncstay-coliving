@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:seed": "tsx db/scripts/seed.ts",
+    "db:embed-profiles": "tsx db/scripts/embed-profiles.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.6.2",
@@ -19,6 +21,7 @@
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.8.0",
     "next": "16.2.3",
+    "openai": "^6.34.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",

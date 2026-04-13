@@ -1,7 +1,7 @@
 /**
  * SyncStay Co-Living Platform — Database Seed Script
  * ─────────────────────────────────────────────────────
- * Run with:  npx tsx db/seed.ts
+ * Run with:  npm run db:seed
  *
  * Insertion order (dependency-safe):
  *  1. locations
@@ -24,8 +24,8 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import { faker } from "@faker-js/faker";
-import * as schema from "./schema";
-import * as authSchema from "../auth-schema";
+import * as schema from "../schema";
+import * as authSchema from "../../auth-schema";
 
 // ── Deterministic seed ────────────────────────────────────────────
 faker.seed(42);

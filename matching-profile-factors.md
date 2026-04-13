@@ -1,7 +1,7 @@
 # Traveler Matching Profile Factors
 
 > Factors collected during onboarding and stored on the user profile.  
-> Used by the AI engine to generate embedding vectors (`pgvector`, 768-dim) and by the LLM to synthesize personalized pod-match hooks.
+> Used by the AI engine to generate embedding vectors (`pgvector`, 3072-dim) and by the LLM to synthesize personalized pod-match hooks.
 
 ---
 
@@ -131,7 +131,7 @@ What the traveler needs from the physical space. These filter and rank *which po
 │  ┌───────────────────────────────────────────────────┐  │
 │  │ Prompt template stitches all factors into a       │  │
 │  │ natural-language paragraph → sent to embedding    │  │
-│  │ model → 768-dim vector stored in users.embedding  │  │
+│  │ model → 3072-dim vector stored in users.embedding │  │
 │  └───────────────────────────────────────────────────┘  │
 └──────────────────────┬──────────────────────────────────┘
                        │
