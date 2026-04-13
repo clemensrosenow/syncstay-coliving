@@ -55,27 +55,19 @@ export const userProfiles = pgTable("user_profiles", {
 
   birthday: date("birthday"),
 
-  // ── Transferred from auth-schema ──
   bio: text("bio"),
   embedding: vector("embedding", { dimensions: 768 }),
 
-  // ── MVP Factor 1: Work schedule ──
   chronotype: chronotypeEnum("chronotype"),
   workStartHour: smallint("work_start_hour"), // 0-23
   workEndHour: smallint("work_end_hour"),     // 0-23
   workStyle: workStyleEnum("work_style"),
 
-  // ── MVP Factor 2: Cleanliness standard ──
   cleanliness: smallint("cleanliness"), // 1-5 Likert
 
-  // ── MVP Factor 3: Social energy ──
   socialEnergy: smallint("social_energy"), // 1-5 (1=introvert, 5=extrovert)
 
-  // ── MVP Factor 4: Budget tier ──
   budgetTier: budgetTierEnum("budget_tier"),
-
-  // ── MVP Factor 5: Top interests ──
-  // Stored via the existing userTags join table (tags → user_tags)
 
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
