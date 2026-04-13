@@ -141,19 +141,20 @@ async def generate_explanation(active_semantic: str, members_semantics: dict) ->
 
     prompt = (
         f"You are a premium coliving matchmaking AI.\n"
-        f"Based on the active user's profile and the group of pending housemates (the 'pod'),\n"
-        f"write exactly one short, highly readable sentence explaining why this group dynamic is a great fit.\n"
-        f"Focus on the overall group synergy (shared household habits, lifestyle, or work styles) rather than individuals.\n"
-        f"Speak directly to the active user in a warm, simple tone (e.g., 'You and the pod both value...').\n"
+        f"Based on the signed-in user's profile and the pending members listed below,\n"
+        f"write exactly one short, highly readable sentence explaining why the signed-in user is a strong fit for those pending members.\n"
+        f"Compare the signed-in user directly with the pending members using shared household habits, lifestyle, interests, or work styles.\n"
+        f"Do not describe the fit as being with a pod or a generic group dynamic.\n"
+        f"Speak directly to the signed-in user in a warm, simple tone (e.g., 'You and the pending members all value...').\n"
         f"Keep the language very concise without complex structures.\n\n"
-        f"ACTIVE USER PROFILE:\n{active_semantic}\n\n"
-        f"POD MEMBERS (Group Context):\n{members_text}"
+        f"SIGNED-IN USER PROFILE:\n{active_semantic}\n\n"
+        f"PENDING MEMBERS:\n{members_text}"
     )
     
     response = await openai_client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are a concise matchmaking AI that writes simple, short explanations focused on group synergy."},
+            {"role": "system", "content": "You are a concise matchmaking AI that writes simple, short explanations comparing the signed-in user with the pending members. Never describe the fit as being with a pod."},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100,
@@ -212,7 +213,7 @@ async def rank_pods(request: RankPodsRequest):
                     SELECT prop.id AS property_id, prop.name AS property_name, prop.location_id AS location_id, q_moon.month AS queried_month
                     FROM properties prop
                     CROSS JOIN unnest(%s::date[]) AS q_moon(month)
-                    WHERE prop.location_id = ANY(%s::uuid[])
+                    WHERE cardinality(%s::text[]) = 0 OR prop.location_id = ANY(%s::text[])
                 )
                 SELECT
                     qc.property_id AS property_id,
@@ -245,7 +246,7 @@ async def rank_pods(request: RankPodsRequest):
                 LEFT JOIN pod_members pm ON pm.pod_id = p.id AND pm.status = 'PENDING'
                 LEFT JOIN users u ON pm.user_id = u.id
                 LEFT JOIN user_profiles up ON up.user_id = u.id AND up.embedding IS NOT NULL
-            ''', (request.months, request.location_ids, active_embedding))
+            ''', (request.months, request.location_ids, request.location_ids, active_embedding))
             
             rows = await cur.fetchall()
 
@@ -332,4 +333,3 @@ async def rank_pods(request: RankPodsRequest):
     completed_props.sort(key=lambda x: x.match_score, reverse=True)
     
     return RankPodsResponse(rankings=completed_props)
-

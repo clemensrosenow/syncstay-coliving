@@ -13,7 +13,7 @@ This approach provides prospective coliving tenants with a ranked listing of ava
 **Path:** `/api/rank-pods`  
 
 ### Purpose
-To query the database for all available coliving properties within a given geographic `location_id` and temporal `month`. For properties containing active "Pods" (groups of currently `PENDING` members), the endpoint compares their embedded profiles mathematically against the "Active User" currently browsing the application. Properties are sorted by compatibility, and OpenAI writes a bespoke 1-2 sentence overview detailing why the user and the pod will be great housemates.
+To query the database for all available coliving properties within a given geographic `location_id` and temporal `month`. For properties containing active "Pods" (groups of currently `PENDING` members), the endpoint compares their embedded profiles mathematically against the signed-in user currently browsing the application. Properties are sorted by compatibility, and OpenAI writes a bespoke 1-2 sentence overview detailing why the signed-in user matches well with those pending members.
 
 ### Architectural Rationale 
 1. **Empty State Awareness:** Not all properties will have an active Pod. To gracefully handle the "Anchor Model" architecture (Pod-First Gravity), the API unconditionally returns all available properties in the location. If a property has no matching pod, it simply returns a `0.0` score and prompts the user to "Be the first one to start a pod!".
@@ -29,8 +29,8 @@ To query the database for all available coliving properties within a given geogr
 
 | Field | Type | Description |
 |-----------|---------|----------------------------------------------------------|
-| `location_ids` | `list[uuid]` | An array of geographic `location_id`s being queried |
-| `active_user_id` | `uuid` | The DB unique identifier (`id`) in the `users` table |
+| `location_ids` | `list[string]` | An array of `location_id`s being queried. Pass an empty array to rank across all locations. |
+| `active_user_id` | `string` | The DB unique identifier (`id`) in the `users` table |
 | `months` | `list[date]` | Target stay month string format array (e.g., `["2026-04-01", "2026-05-01"]`) |
 
 **Example Request:**
@@ -41,6 +41,8 @@ To query the database for all available coliving properties within a given geogr
   "months": ["2026-04-01"]
 }
 ```
+
+For local frontend integration, the Next.js app now targets `http://127.0.0.1:8000/api/rank-pods` by default. Override that with `AI_BACKEND_URL` if needed.
 
 ---
 
@@ -56,7 +58,7 @@ The endpoint returns an array of ranked properties, internally calculated and ar
 | `pod_id` | `uuid?` | The Pod DB ID (Can be `null` if the property is entirely empty) |
 | `property_name` | `string` | The human-readable name of the coliving house |
 | `match_score` | `float` | Averaged cosine similarity between the Active User and all Pending Members |
-| `explanation` | `string` | GPT-4o driven summary addressing the active user ("You and the housemates both love..."). |
+| `explanation` | `string` | GPT-4o driven summary addressing the signed-in user and comparing them directly with the pending members, not the pod as an abstract group. |
 | `members` | `list` | Comprehensive structured data representing `PENDING` potential housemates |
 
 **Member Properties Extracted:**
@@ -78,7 +80,7 @@ Each entry in the `members` array contains:
       "pod_id": "42345ab-12...",
       "property_name": "Sunny Peak Villa",
       "match_score": 0.895,
-      "explanation": "You and the housemates both identify as early birds who require deep focus during the workday. Your shared expectation for strict cleanliness and preference for balancing social interaction with needed alone time suggests an incredibly robust household synergy.",
+      "explanation": "You and the pending members all keep early routines, value focused workdays, and care about a tidy shared home.",
       "members": [
         {
           "name": "Jane",
@@ -119,5 +121,5 @@ Each entry in the `members` array contains:
 2. **Active User Extraction:** Scans `user_profiles` joining `user_tags` to calculate `active_semantic_string`: a structured paragraph describing the active tenant's core behaviors. *If the query fails because physical embedding has not been completed for the user, it immediately drops to an HTTP `400 Bad Request`.*
 3. **Universal Joining:** Runs a `LEFT JOIN` leveraging `UNNEST` and `ANY` across the `properties` table (bound by location IDs list) cross-referenced through all requested `months` to `pod_members` (Status exactly `'PENDING'`) tracking individual user embedding `<=>` cosine distance operations at the postgres layer level.
 4. **Member Hydration:** Groups the returned raw rows by physical property and requested month combinations. Fills in demographic stats safely parsing Python `datetime` objects and translating nested enums into lists.
-5. **AI Synthesis (GPT-4o):** Identifies non-zero Pod groups, aggregates their individual scores to a unified average, bundles semantic arrays, and executes the dynamic LLM generation for optimal conversational onboarding.
+5. **AI Synthesis (GPT-4o):** Identifies non-zero Pod groups, aggregates their individual scores to a unified average, bundles semantic arrays, and generates a short explanation comparing the signed-in user directly with the pending members in that property.
 6. **Destructive Sorting:** Mutates Python output array by score descending prior to returning HTTP `200`.
