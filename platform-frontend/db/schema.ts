@@ -53,6 +53,8 @@ export const userProfiles = pgTable("user_profiles", {
     .notNull()
     .unique(),
 
+  birthday: date("birthday"),
+
   // ── Transferred from auth-schema ──
   bio: text("bio"),
   embedding: vector("embedding", { dimensions: 768 }),
