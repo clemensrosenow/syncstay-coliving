@@ -27,8 +27,8 @@ This document outlines the core routes needed to support the SyncStay coliving p
     *   LLM-generated hook text explicitly featured on the cards to drive engagement.
     *   Skeleton loaders for rapid page transitions while the FastAPI microservice ranks pods.
 *   **URL Params:**
-    *   `?location=` (List of Strings: e.g., ["lisbon", "bali"] - matching predefined hubs)
-    *   `?month=` (List of Strings: e.g., ["2026-10", "2026-11"] - matching static calendar blocks)
+    *   `?location=` (Multiple entries supported via `?location=x&location=y` or a comma-separated list, e.g., "lisbon", "bali" - matching predefined hubs)
+    *   `?month=` (Multiple entries supported via `?month=x&month=y` or a comma-separated list, e.g., "2026-10", "2026-11" - matching static calendar blocks)
 
 ## 3. Property Details (Anchor Selection)
 **Path:** `/properties/[propertyId]`
