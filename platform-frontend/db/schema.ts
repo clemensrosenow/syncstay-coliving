@@ -3,10 +3,12 @@ import {
   pgEnum,
   text,
   integer,
+  smallint,
   date,
   timestamp,
   uniqueIndex,
   index,
+  vector,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "../auth-schema";
@@ -20,6 +22,67 @@ export const memberStatusEnum = pgEnum("member_status", [
   "CONFIRMED",
   "WITHDRAWN",
 ]);
+
+export const chronotypeEnum = pgEnum("chronotype", [
+  "EARLY_BIRD",
+  "STANDARD",
+  "NIGHT_OWL",
+]);
+
+export const budgetTierEnum = pgEnum("budget_tier", [
+  "BUDGET",
+  "MID_RANGE",
+  "PREMIUM",
+]);
+
+export const workStyleEnum = pgEnum("work_style", [
+  "DEEP_FOCUS",
+  "MIXED",
+  "MOSTLY_CALLS",
+  "LIGHT",
+]);
+
+// ── User Profiles (MVP matching factors) ─────────────────────────
+
+export const userProfiles = pgTable("user_profiles", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull()
+    .unique(),
+
+  // ── Transferred from auth-schema ──
+  bio: text("bio"),
+  embedding: vector("embedding", { dimensions: 768 }),
+
+  // ── MVP Factor 1: Work schedule ──
+  chronotype: chronotypeEnum("chronotype"),
+  workStartHour: smallint("work_start_hour"), // 0-23
+  workEndHour: smallint("work_end_hour"),     // 0-23
+  workStyle: workStyleEnum("work_style"),
+
+  // ── MVP Factor 2: Cleanliness standard ──
+  cleanliness: smallint("cleanliness"), // 1-5 Likert
+
+  // ── MVP Factor 3: Social energy ──
+  socialEnergy: smallint("social_energy"), // 1-5 (1=introvert, 5=extrovert)
+
+  // ── MVP Factor 4: Budget tier ──
+  budgetTier: budgetTierEnum("budget_tier"),
+
+  // ── MVP Factor 5: Top interests ──
+  // Stored via the existing userTags join table (tags → user_tags)
+
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
 
 // ── Locations ────────────────────────────────────────────────────
 
@@ -93,16 +156,16 @@ export const tags = pgTable("tags", {
 export const userTags = pgTable(
   "user_tags",
   {
-    userId: text("user_id")
-      .references(() => users.id, { onDelete: "cascade" })
+    profileId: text("profile_id")
+      .references(() => userProfiles.id, { onDelete: "cascade" })
       .notNull(),
     tagId: text("tag_id")
       .references(() => tags.id, { onDelete: "cascade" })
       .notNull(),
   },
   (table) => [
-    uniqueIndex("user_tags_idx").on(table.userId, table.tagId),
-    index("user_tags_user_idx").on(table.userId),
+    uniqueIndex("user_tags_idx").on(table.profileId, table.tagId),
+    index("user_tags_profile_idx").on(table.profileId),
   ],
 );
 
@@ -157,6 +220,14 @@ export const podMembers = pgTable(
 
 // ── Relations ────────────────────────────────────────────────────
 
+export const userProfilesRelations = relations(userProfiles, ({ one, many }) => ({
+  user: one(users, {
+    fields: [userProfiles.userId],
+    references: [users.id],
+  }),
+  interests: many(userTags),
+}));
+
 export const locationsRelations = relations(locations, ({ many }) => ({
   properties: many(properties),
 }));
@@ -193,9 +264,9 @@ export const tagsRelations = relations(tags, ({ many }) => ({
 }));
 
 export const userTagsRelations = relations(userTags, ({ one }) => ({
-  user: one(users, {
-    fields: [userTags.userId],
-    references: [users.id],
+  profile: one(userProfiles, {
+    fields: [userTags.profileId],
+    references: [userProfiles.id],
   }),
   tag: one(tags, {
     fields: [userTags.tagId],
