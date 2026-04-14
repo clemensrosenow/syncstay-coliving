@@ -1,5 +1,4 @@
 import os
-import asyncio
 from datetime import date
 from typing import List, Optional
 
@@ -27,32 +26,14 @@ app.add_middleware(
 openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 DB_URL = os.getenv("DATABASE_URL")
 
-class RankPodsRequest(BaseModel):
-    location_ids: List[str]
+class PropertyMatchRequest(BaseModel):
     active_user_id: str
-    months: List[date]
-
-class PodRankingMember(BaseModel):
-    name: str
-    age: Optional[int] = None
-    bio: Optional[str] = None
-    chronotype: Optional[str] = None
-    work_style: Optional[str] = None
-    tags: List[str] = []
-    score: float
-
-class PodRanking(BaseModel):
     property_id: str
-    location_id: str
     month: date
-    pod_id: Optional[str] = None
-    property_name: str
+
+class PropertyMatchResponse(BaseModel):
     match_score: float
     explanation: str
-    members: List[PodRankingMember]
-
-class RankPodsResponse(BaseModel):
-    rankings: List[PodRanking]
 
 def calculate_age(birthday: date | None) -> int | None:
     if not birthday:
@@ -162,8 +143,8 @@ async def generate_explanation(active_semantic: str, members_semantics: dict) ->
     )
     return response.choices[0].message.content.strip()
 
-@app.post("/api/rank-pods", response_model=RankPodsResponse)
-async def rank_pods(request: RankPodsRequest):
+@app.post("/api/property-match", response_model=PropertyMatchResponse)
+async def get_property_match(request: PropertyMatchRequest):
     try:
         conn = await get_db_connection()
     except Exception as e:
@@ -207,21 +188,9 @@ async def rank_pods(request: RankPodsRequest):
 
             active_semantic = format_profile_to_text(active_row, active_row['tags'])
 
-            # 2. Fetch properties and any existing pending members for combinations of queried locations and months
+            # 2. Fetch members for the specific property and month
             await cur.execute('''
-                WITH queried_combinations AS (
-                    SELECT prop.id AS property_id, prop.name AS property_name, prop.location_id AS location_id, q_moon.month AS queried_month
-                    FROM properties prop
-                    CROSS JOIN unnest(%s::date[]) AS q_moon(month)
-                    WHERE cardinality(%s::text[]) = 0 OR prop.location_id = ANY(%s::text[])
-                )
                 SELECT
-                    qc.property_id AS property_id,
-                    qc.property_name AS property_name,
-                    qc.location_id AS location_id,
-                    qc.queried_month AS month,
-                    p.id AS pod_id,
-                    u.id AS user_id,
                     u.name AS user_name,
                     up.birthday,
                     up.chronotype,
@@ -241,12 +210,12 @@ async def rank_pods(request: RankPodsRequest):
                         ), 
                         '{}'
                     ) AS tags
-                FROM queried_combinations qc
-                LEFT JOIN pods p ON p.property_id = qc.property_id AND p.month = qc.queried_month
-                LEFT JOIN pod_members pm ON pm.pod_id = p.id AND pm.status = 'PENDING'
-                LEFT JOIN users u ON pm.user_id = u.id
-                LEFT JOIN user_profiles up ON up.user_id = u.id AND up.embedding IS NOT NULL
-            ''', (request.months, request.location_ids, request.location_ids, active_embedding))
+                FROM pods p
+                JOIN pod_members pm ON pm.pod_id = p.id AND pm.status = 'PENDING'
+                JOIN users u ON pm.user_id = u.id
+                JOIN user_profiles up ON up.user_id = u.id AND up.embedding IS NOT NULL
+                WHERE p.property_id = %s AND p.month = %s
+            ''', (active_embedding, request.property_id, request.month))
             
             rows = await cur.fetchall()
 
@@ -254,82 +223,25 @@ async def rank_pods(request: RankPodsRequest):
         await conn.close()
 
     if not rows:
-        return RankPodsResponse(rankings=[])
-
-    # 3. Group by property and month combination
-    properties_map = {}
-    for r in rows:
-        prop_id = r['property_id']
-        month_val = r['month']
-        key = (prop_id, month_val)
-        
-        if key not in properties_map:
-            properties_map[key] = {
-                'property_name': r['property_name'],
-                'location_id': r['location_id'],
-                'month': month_val,
-                'pod_id': r['pod_id'],
-                'scores': [],
-                'members_semantics': {},
-                'member_list': []
-            }
-        
-        # If user_id is not None, there is an actual member
-        if r['user_id'] is not None:
-            score = r['similarity_score'] or 0.0
-            properties_map[key]['scores'].append(score)
-            
-            member_age = calculate_age(r['birthday'])
-            
-            properties_map[key]['member_list'].append(PodRankingMember(
-                name=r['user_name'],
-                age=member_age,
-                bio=r['bio'],
-                chronotype=r['chronotype'],
-                work_style=r['work_style'],
-                tags=r['tags'],
-                score=score
-            ))
-            
-            member_semantic = format_profile_to_text(r, r['tags'])
-            properties_map[key]['members_semantics'][r['user_name']] = member_semantic
-
-    # 4. Generate explanations concurrently and build rankings
-    tasks = []
-    
-    async def process_property(prop_id, prop_data):
-        if len(prop_data['member_list']) == 0:
-            return PodRanking(
-                property_id=prop_id,
-                location_id=prop_data['location_id'],
-                month=prop_data['month'],
-                pod_id=prop_data['pod_id'],
-                property_name=prop_data['property_name'],
-                match_score=0.0,
-                explanation="Be the first one to start a pod!",
-                members=[]
-            )
-            
-        avg_score = sum(prop_data['scores']) / len(prop_data['scores'])
-        explanation = await generate_explanation(active_semantic, prop_data['members_semantics'])
-        
-        return PodRanking(
-            property_id=prop_id,
-            location_id=prop_data['location_id'],
-            month=prop_data['month'],
-            pod_id=prop_data['pod_id'],
-            property_name=prop_data['property_name'],
-            match_score=avg_score,
-            explanation=explanation,
-            members=prop_data['member_list']
+        return PropertyMatchResponse(
+            match_score=0.0,
+            explanation="This month is still wide open. You could be the first to start a pod here!"
         )
 
-    for (prop_id, month_val), data in properties_map.items():
-        tasks.append(process_property(prop_id, data))
-
-    completed_props = await asyncio.gather(*tasks)
-
-    # Sort by match_score descending
-    completed_props.sort(key=lambda x: x.match_score, reverse=True)
+    scores = []
+    members_semantics = {}
     
-    return RankPodsResponse(rankings=completed_props)
+    for r in rows:
+        score = r['similarity_score'] or 0.0
+        scores.append(score)
+        member_semantic = format_profile_to_text(r, r['tags'])
+        members_semantics[r['user_name']] = member_semantic
+
+    avg_score = sum(scores) / len(scores)
+    
+    explanation = await generate_explanation(active_semantic, members_semantics)
+    
+    return PropertyMatchResponse(
+        match_score=avg_score,
+        explanation=explanation
+    )

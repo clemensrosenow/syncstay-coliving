@@ -1,120 +1,100 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm, useWatch } from 'react-hook-form'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { MapPin, Calendar, Search } from 'lucide-react'
+
 import { Card } from '@/components/ui/card'
+import { useComboboxAnchor } from '@/components/ui/combobox'
+import { FieldGroup } from '@/components/ui/field'
+
+import SearchDestinationField from './components/SearchDestinationField'
+import SearchMonthField from './components/SearchMonthField'
+import SearchSubmitButton from './components/SearchSubmitButton'
+import {
+  filterGroupedLocations,
+  groupLocationsByCountry,
+  searchFormSchema,
+  type SearchFormValues,
+} from './lib/search-ui'
+import { type AvailableLocation, type AvailableMonth } from './lib/types'
 
 interface SearchUIProps {
-  availableLocations: { name: string, slug: string }[]
-  availableMonths: { value: string, label: string }[]
+  availableLocations: AvailableLocation[]
+  availableMonths: AvailableMonth[]
 }
 
 export default function SearchUI({ availableLocations, availableMonths }: SearchUIProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const chipsRef = useComboboxAnchor()
 
-  const [selectedLocations, setSelectedLocations] = useState<string[]>(
-    searchParams.getAll('location')
-  )
-  const [selectedMonths, setSelectedMonths] = useState<string[]>(
-    searchParams.getAll('month')
-  )
+  const defaultMonth = availableMonths[0]?.value || ''
+  const [locationQuery, setLocationQuery] = useState('')
+  const form = useForm<SearchFormValues>({
+    resolver: zodResolver(searchFormSchema),
+    defaultValues: {
+      locations: searchParams.getAll('location'),
+      month: searchParams.get('month') || defaultMonth,
+    },
+  })
 
-  const toggleLocation = (slug: string) => {
-    setSelectedLocations(prev => 
-      prev.includes(slug) ? prev.filter(x => x !== slug) : [...prev, slug]
-    )
-  }
+  useEffect(() => {
+    form.reset({
+      locations: searchParams.getAll('location'),
+      month: searchParams.get('month') || defaultMonth,
+    })
+  }, [defaultMonth, form, searchParams])
 
-  const toggleMonth = (month: string) => {
-    setSelectedMonths(prev => 
-      prev.includes(month) ? prev.filter(x => x !== month) : [...prev, month]
-    )
-  }
+  const selectedLocations = useWatch({
+    control: form.control,
+    name: 'locations',
+  }) ?? []
 
-  const handleSearch = () => {
+  const handleSearch = (values: SearchFormValues) => {
     const params = new URLSearchParams()
-    selectedLocations.forEach(loc => params.append('location', loc))
-    selectedMonths.forEach(m => params.append('month', m))
+    values.locations.forEach((location) => params.append('location', location))
+    if (values.month) {
+      params.append('month', values.month)
+    }
     router.push(`/search?${params.toString()}`)
   }
 
+  const availableLocationsBySlug = new Map(
+    availableLocations.map((location) => [location.slug, location])
+  )
+  const selectedLocationItems = selectedLocations
+    .map((slug) => availableLocationsBySlug.get(slug))
+    .filter((location): location is AvailableLocation => Boolean(location))
+
+  const groupedLocationEntries = useMemo(
+    () => groupLocationsByCountry(availableLocations),
+    [availableLocations]
+  )
+  const filteredGroupedLocations = useMemo(
+    () => filterGroupedLocations(groupedLocationEntries, locationQuery),
+    [groupedLocationEntries, locationQuery]
+  )
+
   return (
-    <Card className="border border-gray-100 shadow-sm p-6 mb-8 w-full max-w-5xl mx-auto rounded-3xl">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)_auto] lg:items-end">
-        
-        {/* Locations */}
-        <div className="min-w-0">
-          <label className="flex items-baseline gap-2 text-sm font-semibold text-gray-700 mb-3">
-            <span className="inline-flex items-center gap-2">
-              <MapPin size={16} className="text-blue-500" /> Destination(s)
-            </span>
-            <span className="text-xs text-gray-400 font-normal">Select multiple</span>
-          </label>
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white via-white/90 to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-white via-white/90 to-transparent" />
-            <div className="flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {availableLocations.map((loc) => (
-                <button
-                  key={loc.slug}
-                  onClick={() => toggleLocation(loc.slug)}
-                  className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
-                    selectedLocations.includes(loc.slug)
-                      ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm hover:bg-blue-100'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
-                  }`}
-                >
-                  {loc.name}
-                </button>
-              ))}
-              {availableLocations.length === 0 && (
-                <span className="text-gray-400 text-sm">No locations found.</span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Months */}
-        <div className="min-w-0">
-          <label className="flex items-baseline gap-2 text-sm font-semibold text-gray-700 mb-3">
-            <span className="inline-flex items-center gap-2">
-              <Calendar size={16} className="text-blue-500" /> Travel Month(s)
-            </span>
-            <span className="text-xs text-gray-400 font-normal">Select multiple</span>
-          </label>
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-white via-white/90 to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-white via-white/90 to-transparent" />
-            <div className="flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {availableMonths.map((month) => (
-                <button
-                  key={month.value}
-                  onClick={() => toggleMonth(month.value)}
-                  className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
-                    selectedMonths.includes(month.value)
-                      ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm hover:bg-blue-100'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
-                  }`}
-                >
-                  {month.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:pb-2">
-          <button
-            onClick={handleSearch}
-            className="w-full lg:w-auto bg-blue-600 text-white font-bold py-3 px-6 rounded-full hover:bg-blue-700 transition-colors shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
-          >
-            <Search size={18} />
-            Search Properties
-          </button>
-        </div>
-      </div>
+    <Card className="mx-auto mb-8 w-full max-w-5xl rounded-3xl p-6">
+      <form onSubmit={form.handleSubmit(handleSearch)}>
+        <FieldGroup className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)_auto] lg:items-end">
+          <SearchDestinationField
+            control={form.control}
+            selectedLocations={selectedLocations}
+            selectedLocationItems={selectedLocationItems}
+            groupedLocationEntries={groupedLocationEntries}
+            filteredGroupedLocations={filteredGroupedLocations}
+            locationQuery={locationQuery}
+            setLocationQuery={setLocationQuery}
+            chipsRef={chipsRef}
+          />
+          <SearchMonthField control={form.control} availableMonths={availableMonths} />
+          <SearchSubmitButton />
+        </FieldGroup>
+      </form>
     </Card>
   )
 }

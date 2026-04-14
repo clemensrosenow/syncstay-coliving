@@ -1,53 +1,47 @@
 'use client'
 
-import { useCallback, useEffect, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useTransition } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm, useWatch } from 'react-hook-form'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { Checkbox } from '@/components/ui/checkbox'
+import FiltersAvailabilitySection from './components/FiltersAvailabilitySection'
+import FiltersBudgetField from './components/FiltersBudgetField'
+import FiltersSortField from './components/FiltersSortField'
+import { FieldGroup } from '@/components/ui/field'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
+  searchFiltersSchema,
+  type FiltersFormValues,
+  type SearchFilterSortValue,
+} from './lib/search-filters'
 
 interface SearchFiltersProps {
-  sort: string
+  sort: SearchFilterSortValue
   budgetMin: number
   budgetMax: number
-  hideFull: boolean
-}
-
-const SORT_OPTIONS = [
-  { value: 'compatibility', label: 'Compatibility' },
-  { value: 'price-asc', label: 'Price (low to high)' },
-  { value: 'price-desc', label: 'Price (high to low)' },
-  { value: 'availability', label: 'Availability' },
-]
-
-const MIN_BUDGET = 500
-const MAX_BUDGET = 5000
-
-function formatBudgetLabel(value: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-  }).format(value)
+  showFullPods: boolean
+  onlyBookable: boolean
 }
 
 export default function SearchFilters({
   sort,
   budgetMin,
   budgetMax,
-  hideFull,
+  showFullPods,
+  onlyBookable,
 }: SearchFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
-  const [budgetRange, setBudgetRange] = useState<[number, number]>([budgetMin, budgetMax])
+  const form = useForm<FiltersFormValues, unknown, FiltersFormValues>({
+    resolver: zodResolver(searchFiltersSchema),
+    defaultValues: {
+      sort,
+      budgetRange: [budgetMin, budgetMax],
+      showFullPods,
+      onlyBookable,
+    },
+  })
 
   const updateSearchParams = useCallback((mutate: (params: URLSearchParams) => void) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -62,90 +56,94 @@ export default function SearchFilters({
   }, [router, searchParams, startTransition])
 
   useEffect(() => {
-    const currentBudgetMin = searchParams.get('budgetMin')
-    const currentBudgetMax = searchParams.get('budgetMax')
+    form.reset({
+      sort,
+      budgetRange: [budgetMin, budgetMax],
+      showFullPods,
+      onlyBookable,
+    })
+  }, [budgetMax, budgetMin, form, onlyBookable, showFullPods, sort])
 
-    if (
-      currentBudgetMin === String(budgetRange[0]) &&
-      currentBudgetMax === String(budgetRange[1])
-    ) {
-      return
-    }
+  const watchedSort = useWatch({
+    control: form.control,
+    name: 'sort',
+  }) ?? sort
+  const watchedBudgetRangeValue = useWatch({
+    control: form.control,
+    name: 'budgetRange',
+  })
+  const watchedBudgetRange = useMemo<[number, number]>(
+    () => watchedBudgetRangeValue ?? [budgetMin, budgetMax],
+    [budgetMax, budgetMin, watchedBudgetRangeValue]
+  )
+  const watchedOnlyBookable = useWatch({
+    control: form.control,
+    name: 'onlyBookable',
+  }) ?? onlyBookable
+  const watchedShowFullPods = useWatch({
+    control: form.control,
+    name: 'showFullPods',
+  }) ?? showFullPods
 
+  useEffect(() => {
     const timeoutId = window.setTimeout(() => {
+      const nextParams = new URLSearchParams(searchParams.toString())
+      nextParams.set('sort', watchedSort)
+      nextParams.set('budgetMin', String(watchedBudgetRange[0]))
+      nextParams.set('budgetMax', String(watchedBudgetRange[1]))
+
+      if (watchedOnlyBookable) {
+        nextParams.set('onlyBookable', 'true')
+      } else {
+        nextParams.delete('onlyBookable')
+      }
+
+      if (watchedShowFullPods) {
+        nextParams.set('showFullPods', 'true')
+      } else {
+        nextParams.delete('showFullPods')
+      }
+
+      if (nextParams.toString() === searchParams.toString()) {
+        return
+      }
+
       updateSearchParams((params) => {
-        params.set('budgetMin', String(budgetRange[0]))
-        params.set('budgetMax', String(budgetRange[1]))
+        params.set('sort', watchedSort)
+        params.set('budgetMin', String(watchedBudgetRange[0]))
+        params.set('budgetMax', String(watchedBudgetRange[1]))
+
+        if (watchedOnlyBookable) {
+          params.set('onlyBookable', 'true')
+        } else {
+          params.delete('onlyBookable')
+        }
+
+        if (watchedShowFullPods) {
+          params.set('showFullPods', 'true')
+        } else {
+          params.delete('showFullPods')
+        }
       })
     }, 150)
 
     return () => window.clearTimeout(timeoutId)
-  }, [budgetRange, searchParams, updateSearchParams])
+  }, [
+    searchParams,
+    updateSearchParams,
+    watchedBudgetRange,
+    watchedOnlyBookable,
+    watchedShowFullPods,
+    watchedSort,
+  ])
 
   return (
-    <div className="space-y-5">
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Sort by
-        </label>
-        <Select
-          value={sort}
-          onValueChange={(nextValue) => {
-            updateSearchParams((params) => {
-              params.set('sort', nextValue)
-            })
-          }}
-        >
-          <SelectTrigger className="w-full" disabled={isPending}>
-            <SelectValue placeholder="Sort results" />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <label className="block text-sm font-medium text-gray-700">
-            Budget
-          </label>
-          <span className="text-xs text-gray-500">
-            {formatBudgetLabel(budgetRange[0])} - {formatBudgetLabel(budgetRange[1])}/mo
-          </span>
-        </div>
-        <Slider
-          min={MIN_BUDGET}
-          max={MAX_BUDGET}
-          step={50}
-          value={budgetRange}
-          onValueChange={(value) => setBudgetRange([value[0], value[1]])}
-          disabled={isPending}
-        />
-      </div>
-
-      <div className="flex items-center space-x-3">
-        <Checkbox
-          id="hide-full"
-          checked={hideFull}
-          onCheckedChange={(checked) => {
-            updateSearchParams((params) => {
-              params.set('hideFull', checked === true ? 'true' : 'false')
-            })
-          }}
-          disabled={isPending}
-        />
-        <label
-          htmlFor="hide-full"
-          className="text-sm font-medium leading-none text-gray-700"
-        >
-          Hide full pods
-        </label>
-      </div>
-    </div>
+    <form>
+      <FieldGroup>
+        <FiltersSortField control={form.control} isPending={isPending} />
+        <FiltersBudgetField control={form.control} isPending={isPending} />
+        <FiltersAvailabilitySection control={form.control} isPending={isPending} />
+      </FieldGroup>
+    </form>
   )
 }
