@@ -12,6 +12,8 @@ export interface PropertyDetailMember {
   age: number | null
   bio: string | null
   chronotype: string | null
+  workStartHour: number | null
+  workEndHour: number | null
   workStyle: string | null
   tags: string[]
   status: 'PENDING' | 'CONFIRMED'

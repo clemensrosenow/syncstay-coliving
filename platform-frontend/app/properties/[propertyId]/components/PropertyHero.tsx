@@ -1,9 +1,34 @@
 import Image from 'next/image'
-import Link from 'next/link'
-import { ArrowLeft, BedDouble, MapPin, Users } from 'lucide-react'
+import {
+  Activity,
+  Bath,
+  BedDouble,
+  Bike,
+  Car,
+  ChefHat,
+  Coffee,
+  DoorOpen,
+  Droplets,
+  Film,
+  Flame,
+  Leaf,
+  Mic,
+  Monitor,
+  Music4,
+  Sparkles,
+  Sun,
+  Users,
+  Waves,
+  Wifi,
+  Wind,
+  type LucideIcon,
+  Shirt,
+  Zap,
+} from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
+import BackButton from './BackButton'
+
+import { Separator } from '@/components/ui/separator'
 
 interface PropertyHeroProps {
   property: {
@@ -17,14 +42,50 @@ interface PropertyHeroProps {
     totalRooms: number
     minOccupancy: number
     pricePerRoom: number
+    amenities: string[]
   }
+}
+
+const amenityIcons: Record<string, LucideIcon> = {
+  'High-Speed Fibre (1 Gbps+)': Wifi,
+  'Rooftop Terrace': Sun,
+  'Private Ensuite Bathroom': Bath,
+  'Dedicated Co-Working Studio': DoorOpen,
+  'Saltwater Pool': Waves,
+  'Plunge Pool': Droplets,
+  'Air Conditioning': Wind,
+  'Chef-Grade Kitchen': ChefHat,
+  'Espresso Bar': Coffee,
+  'Standing Desks & Monitors (4K)': Monitor,
+  'Podcast / Recording Studio': Mic,
+  'Yoga Shala': Activity,
+  'Laundry In-Unit': Shirt,
+  'Bike Storage & Rental': Bike,
+  'Secure Underground Parking': Car,
+  'Hammam / Sauna': Flame,
+  'Outdoor Cinema': Film,
+  'Communal Vegetable Garden': Leaf,
+  'Vinyl Lounge': Music4,
+  'EV Charging': Zap,
 }
 
 export default function PropertyHero({ property }: PropertyHeroProps) {
   return (
-    <section className="grid gap-6 lg:grid-cols-[1.35fr_0.9fr]">
-      <div className="overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
-        <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
+    <section className="space-y-6">
+      <div className="space-y-4">
+        <BackButton />
+        <div className="space-y-2">
+          <h1 className="font-heading text-4xl leading-tight text-slate-950 sm:text-5xl">
+            {property.name}
+          </h1>
+          <p className="text-base text-slate-600">
+            {property.locationName}, {property.country}
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-4xl overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
+        <div className="relative aspect-video overflow-hidden bg-slate-200">
           {property.imageUrl ? (
             <Image
               src={property.imageUrl}
@@ -39,71 +100,52 @@ export default function PropertyHero({ property }: PropertyHeroProps) {
               No image available
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-slate-950/10 to-transparent" />
-          <Link
-            href={`/search?location=${property.locationSlug}`}
-            className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm backdrop-blur"
-          >
-            <ArrowLeft size={16} />
-            Back to search
-          </Link>
-          <div className="absolute bottom-5 left-5 right-5 flex flex-wrap gap-2">
-            <Badge className="bg-white/92 px-3 py-1 text-slate-900 hover:bg-white">
-              {property.pricePerRoom} EUR / month
-            </Badge>
-            <Badge className="bg-sky-100 px-3 py-1 text-sky-800 hover:bg-sky-100">
-              {property.totalRooms} private rooms
-            </Badge>
-            <Badge className="bg-amber-100 px-3 py-1 text-amber-900 hover:bg-amber-100">
-              Locks at {property.minOccupancy} members
-            </Badge>
-          </div>
         </div>
       </div>
 
-      <Card className="overflow-hidden rounded-[2rem] border-white/70 bg-white/90 shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
-        <CardContent className="flex h-full flex-col justify-between p-8">
-          <div className="space-y-5">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-700">
-              Anchor Property
-            </p>
-            <div className="space-y-3">
-              <h1 className="font-heading text-4xl leading-tight text-slate-950 sm:text-5xl">
-                {property.name}
-              </h1>
-              <p className="flex items-center gap-2 text-base text-slate-600">
-                <MapPin size={18} className="text-sky-600" />
-                {property.locationName}, {property.country}
-              </p>
-            </div>
-            <p className="text-base leading-7 text-slate-600">
-              {property.description ??
-                'A calm, design-forward home base for remote work, routines that actually stick, and a pod that feels easy to join.'}
-            </p>
-          </div>
+        <p className="flex flex-wrap items-center gap-2        text-slate-600">
+          <BedDouble size={15} className="text-slate-500" />
+          <span>{property.totalRooms} private rooms</span>
+          <span className="text-slate-300">•</span>
+          <Users size={15} className="text-slate-500" />
+          <span>up to {property.totalRooms} guests</span>
+        </p>
+    
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="flex items-center gap-2 text-sm font-medium text-slate-500">
-                <BedDouble size={16} />
-                Private room setup
-              </p>
-              <p className="mt-2 text-lg font-semibold text-slate-900">
-                {property.totalRooms} rooms available
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <p className="flex items-center gap-2 text-sm font-medium text-slate-500">
-                <Users size={16} />
-                Pod threshold
-              </p>
-              <p className="mt-2 text-lg font-semibold text-slate-900">
-                {property.minOccupancy} people to lock
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
+      <div className="max-w-4xl">
+        <p className="text-base leading-7 text-slate-600">
+          {property.description ??
+            'A calm, design-forward home base for remote work, routines that actually stick, and a pod that feels easy to join.'}
+        </p>
+      </div>
+
+      <Separator className='mt-6' />
+
+      <div className="space-y-4 py-2">
+        <h2 className="text-lg font-semibold text-slate-700">What this place offers</h2>
+        <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2 sm:max-w-2xl">
+          {property.amenities.map((amenity) => {
+            const Icon = amenityIcons[amenity] ?? Sparkles
+
+            return (
+              <div key={amenity} className="flex items-start gap-3 text-sm text-slate-700">
+                <span className="mt-0.5 text-sky-700">
+                  <Icon size={15} />
+                </span>
+              <span>{amenity}</span>
+              </div>
+            )
+          })}
+          {property.amenities.length === 0 ? (
+            <p className="text-sm text-slate-500">
+              Amenities will appear here once they are configured for this property.
+            </p>
+          ) : null}
+        </div>
+      </div>
+
+      <Separator />
     </section>
   )
 }

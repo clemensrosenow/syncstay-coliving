@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation'
 
-import BookingCtaSection from './components/BookingCtaSection'
+import BookingSidebar from './components/BookingSidebar'
 import PodsOverview from './components/PodsOverview'
-import PropertyFacts from './components/PropertyFacts'
 import PropertyHero from './components/PropertyHero'
 import { getPropertyDetailData } from './lib/data'
 import { type PropertyDetailPageProps } from './lib/types'
@@ -21,21 +20,20 @@ export default async function PropertyDetailPage(props: PropertyDetailPageProps)
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f5fbff_0%,#f8fafc_25%,#eef6ff_100%)] pt-24 pb-24">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
-        <PropertyHero property={data.property} />
-        <PropertyFacts property={data.property} />
-        <PodsOverview
-          propertyId={data.property.id}
-          pods={data.pods}
-          selectedMonthValue={data.selectedMonthValue}
-          hasExplicitMonthSelection={data.hasExplicitMonthSelection}
-        />
-        <BookingCtaSection
-          propertyId={data.property.id}
-          pricePerRoom={data.property.pricePerRoom}
-          selectedPod={data.selectedPod}
-        />
+    <div className="min-h-screen bg-slate-50 pt-24 pb-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="space-y-8">
+          <PropertyHero property={data.property} />
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+            <PodsOverview pods={data.pods} />
+            <BookingSidebar
+              propertyId={data.property.id}
+              pricePerRoom={data.property.pricePerRoom}
+              roomCount={data.property.totalRooms}
+              selectedPod={data.selectedPod}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -64,7 +64,7 @@ export default function SearchPropertyCard({
           <div className="absolute inset-0 bg-black/10" />
           <div className="absolute bottom-3 left-3">
             <Badge variant="outline" className="bg-background/90 backdrop-blur">
-              {property.spotsLeft > 0 ? `${property.spotsLeft} spots left` : 'Pod is full'}
+              {property.spotsLeft > 0 ? `${property.spotsLeft} ${property.spotsLeft === 1 ? 'spot' : 'spots'} left` : 'Pod is full'}
             </Badge>
           </div>
 

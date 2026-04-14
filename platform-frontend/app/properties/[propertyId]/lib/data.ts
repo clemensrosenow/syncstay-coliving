@@ -140,6 +140,8 @@ export async function getPropertyDetailData(input: {
             birthday: userProfiles.birthday,
             bio: userProfiles.bio,
             chronotype: userProfiles.chronotype,
+            workStartHour: userProfiles.workStartHour,
+            workEndHour: userProfiles.workEndHour,
             workStyle: userProfiles.workStyle,
           })
           .from(podMembers)
@@ -190,6 +192,8 @@ export async function getPropertyDetailData(input: {
       age: calculateAge(row.birthday),
       bio: row.bio,
       chronotype: row.chronotype,
+      workStartHour: row.workStartHour,
+      workEndHour: row.workEndHour,
       workStyle: row.workStyle,
       tags: row.profileId ? (tagsByProfileId.get(row.profileId) ?? []) : [],
       status: row.status,

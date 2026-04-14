@@ -89,6 +89,21 @@ export function formatPreferenceLabel(value: string | null) {
     .join(' ')
 }
 
+export function formatWorkHours(startHour: number | null, endHour: number | null) {
+  if (startHour === null || endHour === null) {
+    return null
+  }
+
+  const formatHour = (hour: number) => {
+    const normalizedHour = ((hour % 24) + 24) % 24
+    const suffix = normalizedHour >= 12 ? 'PM' : 'AM'
+    const hourOnClock = normalizedHour % 12 || 12
+    return `${hourOnClock} ${suffix}`
+  }
+
+  return `${formatHour(startHour)} - ${formatHour(endHour)}`
+}
+
 export function getMemberInitials(name: string) {
   return name
     .split(' ')
@@ -168,8 +183,8 @@ export function getBookingCtaContent(selectedPod: {
 } | null): BookingCtaContent {
   if (!selectedPod) {
     return {
-      title: 'Pick a month to continue',
-      body: 'Choose a month above first so the prototype can prepare the right pod and pricing summary.',
+      title: 'Choose your month',
+      body: 'Pick a month to enable booking.',
       buttonLabel: 'Select a month',
       disabled: true,
     }
@@ -177,36 +192,36 @@ export function getBookingCtaContent(selectedPod: {
 
   if (selectedPod.condition === 'EMPTY') {
     return {
-      title: `Start the ${selectedPod.monthLabel} pod`,
-      body: 'No one has joined yet. Your commitment would open this pod and start attracting matching members.',
-      buttonLabel: 'Start pod prototype',
+      title: 'Start this pod',
+      body: 'You open the pod for this month.',
+      buttonLabel: 'Commit to pod',
       disabled: false,
     }
   }
 
   if (selectedPod.condition === 'OPEN') {
     return {
-      title: `Join the ${selectedPod.monthLabel} pod`,
+      title: 'Join this pod',
       body: `${selectedPod.membersNeededToLock} more ${
         selectedPod.membersNeededToLock === 1 ? 'person' : 'people'
-      } needed before the pod locks and bookings are secured.`,
-      buttonLabel: 'Join this pod',
+      } needed to lock it.`,
+      buttonLabel: 'Commit to pod',
       disabled: false,
     }
   }
 
   if (selectedPod.condition === 'LOCKED') {
     return {
-      title: `${selectedPod.monthLabel} is locked and ready`,
-      body: `${selectedPod.memberCount} members are already in. This prototype would move you into the committed booking flow immediately.`,
-      buttonLabel: 'Continue to booking prototype',
+      title: 'Book your room',
+      body: `${selectedPod.memberCount} members already committed.`,
+      buttonLabel: 'Book room',
       disabled: false,
     }
   }
 
   return {
-    title: `${selectedPod.monthLabel} is no longer bookable`,
-    body: 'All rooms are already taken for this month. Pick a different month to continue.',
+    title: 'This month is full',
+    body: 'Choose another month to continue.',
     buttonLabel: 'Choose another month',
     disabled: true,
   }
