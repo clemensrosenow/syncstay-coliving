@@ -54,6 +54,9 @@ export const userProfiles = pgTable("user_profiles", {
     .unique(),
 
   birthday: date("birthday"),
+  job: text("job"),
+  country: text("country"),
+  city: text("city"),
 
   bio: text("bio"),
   embedding: vector("embedding", { dimensions: 3072 }),
@@ -163,6 +166,29 @@ export const userTags = pgTable(
   ],
 );
 
+export const languages = pgTable("languages", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull().unique(),
+});
+
+export const userLanguages = pgTable(
+  "user_languages",
+  {
+    profileId: text("profile_id")
+      .references(() => userProfiles.id, { onDelete: "cascade" })
+      .notNull(),
+    languageId: text("language_id")
+      .references(() => languages.id, { onDelete: "cascade" })
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("user_languages_idx").on(table.profileId, table.languageId),
+    index("user_languages_profile_idx").on(table.profileId),
+  ],
+);
+
 // ── Pods ─────────────────────────────────────────────────────────
 
 export const pods = pgTable(
@@ -220,6 +246,7 @@ export const userProfilesRelations = relations(userProfiles, ({ one, many }) => 
     references: [users.id],
   }),
   interests: many(userTags),
+  languages: many(userLanguages),
 }));
 
 export const locationsRelations = relations(locations, ({ many }) => ({
@@ -265,6 +292,21 @@ export const userTagsRelations = relations(userTags, ({ one }) => ({
   tag: one(tags, {
     fields: [userTags.tagId],
     references: [tags.id],
+  }),
+}));
+
+export const languagesRelations = relations(languages, ({ many }) => ({
+  userLanguages: many(userLanguages),
+}));
+
+export const userLanguagesRelations = relations(userLanguages, ({ one }) => ({
+  profile: one(userProfiles, {
+    fields: [userLanguages.profileId],
+    references: [userProfiles.id],
+  }),
+  language: one(languages, {
+    fields: [userLanguages.languageId],
+    references: [languages.id],
   }),
 }));
 

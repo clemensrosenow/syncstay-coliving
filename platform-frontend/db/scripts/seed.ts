@@ -9,12 +9,14 @@
  *  3. amenities
  *  4. propertyAmenities
  *  5. tags
- *  6. users   (auth-schema)
- *  7. accounts (auth-schema — credential rows for Better Auth)
- *  8. userProfiles
- *  9. userTags
- * 10. pods
- * 11. podMembers
+ *  6. languages
+ *  7. users   (auth-schema)
+ *  8. accounts (auth-schema — credential rows for Better Auth)
+ *  9. userProfiles
+ * 10. userTags
+ * 11. userLanguages
+ * 12. pods
+ * 13. podMembers
  */
 
 import { config } from "dotenv";
@@ -64,9 +66,9 @@ function profileImageUrl(seed: string): string {
   return `https://api.dicebear.com/9.x/lorelei/svg?${params.toString()}`;
 }
 
-/** Builds a deterministic Picsum URL using a curated static image id. */
-function propertyImageUrl(imageId: number): string {
-  return `https://picsum.photos/id/${imageId}/1600/900`;
+/** Builds an Unsplash image URL using a provided photo id. */
+function propertyImageUrl(imageId: string): string {
+  return `https://images.unsplash.com/photo-${imageId}`;
 }
 
 function isTruthyFlag(value: string | undefined): boolean {
@@ -86,6 +88,7 @@ async function clearExistingData() {
 
   await db.delete(schema.podMembers);
   await db.delete(schema.pods);
+  await db.delete(schema.userLanguages);
   await db.delete(schema.userTags);
   await db.delete(schema.userProfiles);
   await db.delete(authSchema.accounts);
@@ -95,6 +98,7 @@ async function clearExistingData() {
   await db.delete(schema.propertyAmenities);
   await db.delete(schema.amenities);
   await db.delete(schema.properties);
+  await db.delete(schema.languages);
   await db.delete(schema.tags);
   await db.delete(schema.locations);
 }
@@ -201,7 +205,7 @@ function buildProperties(
       name: "Casa da Luz — Alfama Retreat",
       description:
         "A fully restored 18th-century townhouse perched above Alfama's terracotta rooftops. Three wraparound terraces spill into each other, framing sweeping views of the Tagus estuary at golden hour. The whitewashed interiors fuse Azulejo heritage with bespoke mid-century furniture hand-selected in Cascais. Fast symmetrical fiber, a cedar garden studio for deep work, and a rooftop plunge pool make this Lisbon's most coveted creative retreat.",
-      imageUrl: propertyImageUrl(1067),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 189000,
@@ -212,7 +216,7 @@ function buildProperties(
       name: "Miradouro House — Príncipe Real",
       description:
         "Hidden behind a wrought-iron gate in Príncipe Real's most sought-after block, this four-bedroom manor is a love letter to slow mornings and inspired evenings. Original herringbone parquet, statement arched windows, and a courtyard fig tree anchor the space. The kitchen is a chef's dream — marble island, professional range, espresso alcove. Three minutes walk to the Sunday organic market.",
-      imageUrl: propertyImageUrl(1048),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 149000,
@@ -223,7 +227,7 @@ function buildProperties(
       name: "Ribeira Loft Collective",
       description:
         "A converted 19th-century wine warehouse steps from the Douro River, reimagined as an airy loft collective with exposed granite walls and steel mezzanines. Each room opens onto a shared gallery walkway overlooking the soaring original nave. The ground level hosts a fully equipped podcast studio, a vinyl lounge, and a professional coffee bar. UNESCO-listed Cais da Ribeira begins at the front door.",
-      imageUrl: propertyImageUrl(1031),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 129000,
@@ -234,7 +238,7 @@ function buildProperties(
       name: "Vila das Flores — Bonfim Studio House",
       description:
         "A sun-drenched early-20th-century villa in Porto's creative Bonfim quarter, lovingly converted into a six-room coliving sanctuary. The double-height garden pavilion doubles as a serene co-working studio by day and an intimate screening room by night. Locally roasted coffee is permanently stocked, the garden produces herbs year-round, and the tram to the beach departs from the corner.",
-      imageUrl: propertyImageUrl(1025),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 119000,
@@ -245,7 +249,7 @@ function buildProperties(
       name: "El Carmen Social House",
       description:
         "Inside Valencia's medieval walled quarter, this jaw-dropping 16th-century palacete has been restored with obsessive precision — original stone arches, hand-painted ceilings, and a tranquil inner cloister courtyard where jasmine climbs the walls. The four bedrooms are built for focus; the communal rooftop is built for life. Five-minute bike ride to the city's co-working strip along Colón.",
-      imageUrl: propertyImageUrl(1018),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 4,
       minOccupancy: 3,
       pricePerRoomCents: 139000,
@@ -256,7 +260,7 @@ function buildProperties(
       name: "Eixample Skyline Penthouse",
       description:
         "A full-floor penthouse crowning an early Modernisme building in the heart of Eixample — Gaudí's neighbourhood, your creative laboratory. Floor-to-ceiling windows frame an unbroken panorama from Tibidabo to the sea. The interiors are a deliberate counterpoint: warm walnut, linen, and copper tones that ground the soaring space. Two private work pods with standing desks and monitor screens ensure focus never competes with the view.",
-      imageUrl: propertyImageUrl(1008),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 219000,
@@ -267,7 +271,7 @@ function buildProperties(
       name: "Poblenou Maker Loft",
       description:
         "Barcelona's fastest-evolving tech quarter hosts this 300 m² live/work loft, converted from a 1960s printing house. Polished concrete meets Bauhaus-inspired furniture; the original overhead cranes are now sculptural bookmarks in the double-height workspace. A private rooftop deck, on-site film darkroom, and 2 Gbps symmetrical fiber make this the studio where digital creators come to produce their best work.",
-      imageUrl: propertyImageUrl(1005),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 179000,
@@ -278,7 +282,7 @@ function buildProperties(
       name: "Sol y Mar — Málaga Centro",
       description:
         "A light-flooded Andalusian townhouse in Málaga's buzzing historic centre, one block from the Picasso Museum. The five en-suite bedrooms are wrapped in hand-glazed terracotta and linen — cool even in deepest summer. A rooftop hammam terrace with a heated plunge pool presides over a roofscape of orange trees and church domes. Fibre broadband, a private courtyard, and daily fresh-squeezed orange juice are standard.",
-      imageUrl: propertyImageUrl(999),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 109000,
@@ -289,7 +293,7 @@ function buildProperties(
       name: "Finca Digital — Sineu Valley",
       description:
         "Thirty minutes from Palma's old town, this restored Mallorcan finca sits in an almond grove with unfettered views across the Tramuntana foothills. Stone walls, exposed timber beams, and a saltwater infinity pool overlooking silent countryside. An on-site yoga shala opens at dawn; the chef-grade kitchen hosts weekly communal dinners. The island's best beaches are 25 minutes away — so is Palma airport.",
-      imageUrl: propertyImageUrl(988),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 159000,
@@ -300,7 +304,7 @@ function buildProperties(
       name: "Acropolis View Collective",
       description:
         "A fully renovated neoclassical mansion in Athens's artsy Koukaki district, where every window frames the floodlit Parthenon after dark. Marble floors cooled by Mediterranean breezes, a rooftop al-fresco kitchen for evening gatherings, and an underground library stocked with philosophy, architecture, and design volumes. The neighbourhood is dense with microbreweries, natural-wine bars, and independent bookshops — Athens at its most liveable.",
-      imageUrl: propertyImageUrl(976),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 99000,
@@ -311,7 +315,7 @@ function buildProperties(
       name: "Monastiraki Tech House",
       description:
         "In the shadow of the ancient Agora, this four-storey townhouse pulses with the energy of Athens's booming startup scene. Each floor has been converted into a self-contained suite with private kitchenette and a dedicated 4K monitor workspace. The shared rooftop bar is the city's worst-kept secret — sunset cocktails with the Acropolis as your backdrop, six nights a week.",
-      imageUrl: propertyImageUrl(944),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 89000,
@@ -322,7 +326,7 @@ function buildProperties(
       name: "Dioklecijan House — Diocletian's Quarter",
       description:
         "Embedded within the living walls of Diocletian's Palace — a UNESCO site dating to 305 AD — this extraordinary residence puts 1,700 years of history at your doorstep. Vaulted Roman ceilings, stone walls a metre thick, and a private terrace above the Peristyle square are complemented by thoroughly modern amenities: 10 Gbps fibre, Sonos throughout, and an architect-designed co-working loft in the old stables. The Adriatic is a four-minute walk.",
-      imageUrl: propertyImageUrl(930),
+      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 134000,
@@ -428,12 +432,23 @@ function buildTags() {
   return TAG_LABELS.map((label) => ({ id: uuid(), label }));
 }
 
+function buildLanguages(specs: TravelerSpec[]) {
+  const names = [...new Set(specs.flatMap((spec) => spec.languages))].sort((a, b) =>
+    a.localeCompare(b)
+  );
+
+  return names.map((name) => ({ id: uuid(), name }));
+}
+
 // ── 5. User + profile data ────────────────────────────────────────
 
 interface TravelerSpec {
   name: string;
   email: string;
   birthday: string;
+  job: string;
+  country: string;
+  city: string;
   bio: string;
   chronotype: "EARLY_BIRD" | "STANDARD" | "NIGHT_OWL";
   workStartHour: number;
@@ -443,6 +458,7 @@ interface TravelerSpec {
   socialEnergy: number;
   budgetTier: "BUDGET" | "MID_RANGE" | "PREMIUM";
   interests: string[];
+  languages: string[];
 }
 
 const TRAVELER_SPECS: TravelerSpec[] = [
@@ -450,7 +466,10 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     name: "Mia Bauer",
     email: "mia.bauer@example.com",
     birthday: "1997-03-14",
-    bio: "Product designer from Berlin. Mornings for yoga, evenings for cooking experiments. I need calm, focused housemates who also like occasional surf trips and gallery visits.",
+    job: "Product designer",
+    country: "Germany",
+    city: "Berlin",
+    bio: "Mornings for yoga, evenings for cooking experiments. I need calm, focused housemates who also like occasional surf trips and gallery visits.",
     chronotype: "EARLY_BIRD",
     workStartHour: 8,
     workEndHour: 17,
@@ -459,12 +478,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 3,
     budgetTier: "MID_RANGE",
     interests: ["Yoga", "Surfing", "Cooking", "Art & Design", "Photography"],
+    languages: ["German", "English", "Portuguese"],
   },
   {
     name: "Luca Esposito",
     email: "luca.esposito@example.com",
     birthday: "1994-07-22",
-    bio: "Full-stack engineer from Naples. I work hard 10–7 then cook elaborate pasta and argue about espresso. Strong opinions on everything except house rules — chill about those.",
+    job: "Full-stack engineer",
+    country: "Italy",
+    city: "Naples",
+    bio: "I work hard 10–7 then cook elaborate pasta and argue about espresso. Strong opinions on everything except house rules — chill about those.",
     chronotype: "STANDARD",
     workStartHour: 10,
     workEndHour: 19,
@@ -473,12 +496,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 4,
     budgetTier: "MID_RANGE",
     interests: ["Cooking", "Coffee Culture", "Film", "Cycling", "Open Source"],
+    languages: ["Italian", "English", "Spanish"],
   },
   {
     name: "Zoë Andersen",
     email: "zoe.andersen@example.com",
     birthday: "2000-11-05",
-    bio: "UX researcher and podcast host. Obsessed with human behaviour and third-wave coffee. I record interviews from home so I need a quiet space — but I'm the life of the party after 7 PM.",
+    job: "UX researcher and podcast host",
+    country: "Denmark",
+    city: "Copenhagen",
+    bio: "Obsessed with human behaviour and third-wave coffee. I record interviews from home so I need a quiet space — but I'm the life of the party after 7 PM.",
     chronotype: "STANDARD",
     workStartHour: 9,
     workEndHour: 18,
@@ -487,12 +514,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 5,
     budgetTier: "PREMIUM",
     interests: ["Coffee Culture", "Writing", "Dancing", "Travel Hacking", "Mindfulness"],
+    languages: ["Danish", "English", "Swedish"],
   },
   {
     name: "Kai Nakamura",
     email: "kai.nakamura@example.com",
     birthday: "1996-02-28",
-    bio: "Indie iOS developer from Kyoto, now permanently nomadic. Ship code 6–14, hit the water by 3. Minimal footprint, zero drama. Looking for housemates who understand that silence is community.",
+    job: "Indie iOS developer",
+    country: "Japan",
+    city: "Kyoto",
+    bio: "Ship code 6–14, hit the water by 3. Minimal footprint, zero drama. Looking for housemates who understand that silence is community.",
     chronotype: "EARLY_BIRD",
     workStartHour: 6,
     workEndHour: 14,
@@ -501,12 +532,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 2,
     budgetTier: "MID_RANGE",
     interests: ["Surfing", "Diving", "Mindfulness", "Photography", "Open Source"],
+    languages: ["Japanese", "English"],
   },
   {
     name: "Amara Osei",
     email: "amara.osei@example.com",
     birthday: "1999-08-17",
-    bio: "Climate-tech founder from Accra. I run morning runs and board meetings with equal energy. My ideal pod is ambitious, values-aligned, and doesn't leave dishes in the sink.",
+    job: "Climate-tech founder",
+    country: "Ghana",
+    city: "Accra",
+    bio: "I run morning runs and board meetings with equal energy. My ideal pod is ambitious, values-aligned, and doesn't leave dishes in the sink.",
     chronotype: "EARLY_BIRD",
     workStartHour: 7,
     workEndHour: 18,
@@ -515,12 +550,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 4,
     budgetTier: "PREMIUM",
     interests: ["Entrepreneurship", "Hiking", "Yoga", "Language Learning", "Coffee Culture"],
+    languages: ["English", "Twi", "French"],
   },
   {
     name: "Sébastien Moreau",
     email: "sebastien.moreau@example.com",
     birthday: "1992-12-03",
-    bio: "Freelance motion designer from Lyon. My hours are flexible and my taste is not. I make beats on weekends, cook French food on Sundays, and need my workspace to be sacred territory.",
+    job: "Freelance motion designer",
+    country: "France",
+    city: "Lyon",
+    bio: "My hours are flexible and my taste is not. I make beats on weekends, cook French food on Sundays, and need my workspace to be sacred territory.",
     chronotype: "NIGHT_OWL",
     workStartHour: 13,
     workEndHour: 22,
@@ -529,12 +568,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 3,
     budgetTier: "MID_RANGE",
     interests: ["Music Production", "Art & Design", "Film", "Cooking", "Dancing"],
+    languages: ["French", "English", "Spanish"],
   },
   {
     name: "Priya Sharma",
     email: "priya.sharma@example.com",
     birthday: "1998-04-11",
-    bio: "Content strategist & travel writer from Mumbai. I'm on calls with London in the afternoon and writing from cafés in the morning. One espresso in hand, one chapter in progress, always.",
+    job: "Content strategist & travel writer",
+    country: "India",
+    city: "Mumbai",
+    bio: "I'm on calls with London in the afternoon and writing from cafés in the morning. One espresso in hand, one chapter in progress, always.",
     chronotype: "STANDARD",
     workStartHour: 9,
     workEndHour: 19,
@@ -543,12 +586,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 4,
     budgetTier: "MID_RANGE",
     interests: ["Writing", "Coffee Culture", "Travel Hacking", "Photography", "Language Learning"],
+    languages: ["Hindi", "English", "Marathi"],
   },
   {
     name: "Felix Wagner",
     email: "felix.wagner@example.com",
     birthday: "1995-09-30",
-    bio: "DevOps engineer from Hamburg. I automate infrastructure by day and climb walls by night. Not here for the social program — here for the Wi-Fi, the view, and the crew who gets it.",
+    job: "DevOps engineer",
+    country: "Germany",
+    city: "Hamburg",
+    bio: "I automate infrastructure by day and climb walls by night. Not here for the social program — here for the Wi-Fi, the view, and the crew who gets it.",
     chronotype: "STANDARD",
     workStartHour: 9,
     workEndHour: 17,
@@ -557,12 +604,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 2,
     budgetTier: "BUDGET",
     interests: ["Rock Climbing", "Hiking", "Gaming", "Open Source", "Cycling"],
+    languages: ["German", "English"],
   },
   {
     name: "Nadia El-Amin",
     email: "nadia.elamin@example.com",
     birthday: "2001-01-20",
-    bio: "Fashion photographer from Cairo. My days revolve around locations, golden hour, and deadlines. I'm social when the shoot is done — expect impromptu gallery crawls and late rooftop dinners.",
+    job: "Fashion photographer",
+    country: "Egypt",
+    city: "Cairo",
+    bio: "My days revolve around locations, golden hour, and deadlines. I'm social when the shoot is done — expect impromptu gallery crawls and late rooftop dinners.",
     chronotype: "STANDARD",
     workStartHour: 10,
     workEndHour: 19,
@@ -571,12 +622,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 4,
     budgetTier: "MID_RANGE",
     interests: ["Photography", "Art & Design", "Dancing", "Film", "Language Learning"],
+    languages: ["Arabic", "English", "French"],
   },
   {
     name: "Tom Eriksson",
     email: "tom.eriksson@example.com",
     birthday: "1993-06-08",
-    bio: "Serial bootstrapper from Stockholm. Three exits, currently building number four in the health-tech space. I'm looking for a pod that has ambition in the water and doesn't take itself too seriously.",
+    job: "Serial bootstrapper",
+    country: "Sweden",
+    city: "Stockholm",
+    bio: "Three exits, currently building number four in the health-tech space. I'm looking for a pod that has ambition in the water and doesn't take itself too seriously.",
     chronotype: "EARLY_BIRD",
     workStartHour: 6,
     workEndHour: 16,
@@ -585,12 +640,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 4,
     budgetTier: "PREMIUM",
     interests: ["Entrepreneurship", "Mindfulness", "Cycling", "Coffee Culture", "Wine"],
+    languages: ["Swedish", "English"],
   },
   {
     name: "Isabel Vázquez",
     email: "isabel.vazquez@example.com",
     birthday: "1997-10-25",
-    bio: "UX/UI designer from Mexico City. Speaks three languages, surfs badly, cooks well. My design process is loud with music and quiet with distractions — Spotify playing, Slack on Do Not Disturb.",
+    job: "UX/UI designer",
+    country: "Mexico",
+    city: "Mexico City",
+    bio: "Speaks three languages, surfs badly, cooks well. My design process is loud with music and quiet with distractions — Spotify playing, Slack on Do Not Disturb.",
     chronotype: "STANDARD",
     workStartHour: 10,
     workEndHour: 19,
@@ -599,12 +658,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 4,
     budgetTier: "MID_RANGE",
     interests: ["Surfing", "Cooking", "Music Production", "Art & Design", "Dancing"],
+    languages: ["Spanish", "English", "Portuguese"],
   },
   {
     name: "Arjun Mehta",
     email: "arjun.mehta@example.com",
     birthday: "1996-05-17",
-    bio: "Backend Rust developer from Bangalore. I code from midnight to noon and sleep like a human from 1–8 PM. If you're a night owl running async from Asia, we'll get along perfectly.",
+    job: "Backend Rust developer",
+    country: "India",
+    city: "Bangalore",
+    bio: "I code from midnight to noon and sleep like a human from 1–8 PM. If you're a night owl running async from Asia, we'll get along perfectly.",
     chronotype: "NIGHT_OWL",
     workStartHour: 0,
     workEndHour: 12,
@@ -613,12 +676,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 2,
     budgetTier: "BUDGET",
     interests: ["Gaming", "Open Source", "Reading", "Martial Arts", "Coffee Culture"],
+    languages: ["Hindi", "English", "Kannada"],
   },
   {
     name: "Clara Bonnet",
     email: "clara.bonnet@example.com",
     birthday: "2000-03-03",
-    bio: "Food & hospitality consultant from Paris. I believe the kitchen is the heart of any home and that a shared meal solves almost everything. Extremely clean, extremely French about food.",
+    job: "Food & hospitality consultant",
+    country: "France",
+    city: "Paris",
+    bio: "I believe the kitchen is the heart of any home and that a shared meal solves almost everything. Extremely clean, extremely French about food.",
     chronotype: "STANDARD",
     workStartHour: 9,
     workEndHour: 17,
@@ -627,12 +694,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 5,
     budgetTier: "PREMIUM",
     interests: ["Cooking", "Wine", "Language Learning", "Art & Design", "Mindfulness"],
+    languages: ["French", "English", "Italian"],
   },
   {
     name: "Marcus Thompson",
     email: "marcus.thompson@example.com",
     birthday: "1994-08-12",
-    bio: "Cybersecurity consultant from Austin. I work remotely for three US clients across time zones, which makes me a professional night person. Weekend hiker, occasional trail runner, habitual overthinker.",
+    job: "Cybersecurity consultant",
+    country: "United States",
+    city: "Austin",
+    bio: "I work remotely for three US clients across time zones, which makes me a professional night person. Weekend hiker, occasional trail runner, habitual overthinker.",
     chronotype: "NIGHT_OWL",
     workStartHour: 14,
     workEndHour: 23,
@@ -641,12 +712,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 2,
     budgetTier: "MID_RANGE",
     interests: ["Hiking", "Rock Climbing", "Reading", "Open Source", "Mindfulness"],
+    languages: ["English", "Spanish"],
   },
   {
     name: "Yuki Tanaka",
     email: "yuki.tanaka@example.com",
     birthday: "1999-12-19",
-    bio: "Illustrator and visual storyteller from Osaka. I paint in silence and talk in colour. Looking for a home that values beauty, quiet mornings, and the occasional midnight brainstorm.",
+    job: "Illustrator and visual storyteller",
+    country: "Japan",
+    city: "Osaka",
+    bio: "I paint in silence and talk in colour. Looking for a home that values beauty, quiet mornings, and the occasional midnight brainstorm.",
     chronotype: "NIGHT_OWL",
     workStartHour: 13,
     workEndHour: 22,
@@ -655,12 +730,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 2,
     budgetTier: "MID_RANGE",
     interests: ["Art & Design", "Photography", "Writing", "Film", "Mindfulness"],
+    languages: ["Japanese", "English"],
   },
   {
     name: "Santiago Rojas",
     email: "santiago.rojas@example.com",
     birthday: "1995-01-29",
-    bio: "Growth hacker and entrepreneur from Bogotá. I split my time between strategy decks and salsa dancing. I work hard, play louder, and need housemates who can tell the difference between my two modes.",
+    job: "Growth hacker and entrepreneur",
+    country: "Colombia",
+    city: "Bogotá",
+    bio: "I split my time between strategy decks and salsa dancing. I work hard, play louder, and need housemates who can tell the difference between my two modes.",
     chronotype: "STANDARD",
     workStartHour: 9,
     workEndHour: 18,
@@ -669,12 +748,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 5,
     budgetTier: "MID_RANGE",
     interests: ["Dancing", "Entrepreneurship", "Travel Hacking", "Web3", "Language Learning"],
+    languages: ["Spanish", "English", "Portuguese"],
   },
   {
     name: "Leila Hassan",
     email: "leila.hassan@example.com",
     birthday: "1998-07-04",
-    bio: "Environmental lawyer and activist from Beirut. My work is serious; my evenings are not. Champion of communal dinners, terrible at small talk, excellent in deep conversation after 10 PM.",
+    job: "Environmental lawyer and activist",
+    country: "Lebanon",
+    city: "Beirut",
+    bio: "My work is serious; my evenings are not. Champion of communal dinners, terrible at small talk, excellent in deep conversation after 10 PM.",
     chronotype: "STANDARD",
     workStartHour: 8,
     workEndHour: 17,
@@ -683,12 +766,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 3,
     budgetTier: "PREMIUM",
     interests: ["Yoga", "Reading", "Wine", "Cooking", "Language Learning"],
+    languages: ["Arabic", "English", "French"],
   },
   {
     name: "Finn O'Sullivan",
     email: "finn.osullivan@example.com",
     birthday: "1993-04-16",
-    bio: "Freelance data journalist from Dublin. I find stories in spreadsheets and tell them with graphs. Coffee-shop nomad by preference, early bird by constitution, craft beer connoisseur by culture.",
+    job: "Freelance data journalist",
+    country: "Ireland",
+    city: "Dublin",
+    bio: "I find stories in spreadsheets and tell them with graphs. Coffee-shop nomad by preference, early bird by constitution, craft beer connoisseur by culture.",
     chronotype: "EARLY_BIRD",
     workStartHour: 7,
     workEndHour: 16,
@@ -697,12 +784,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 3,
     budgetTier: "BUDGET",
     interests: ["Writing", "Coffee Culture", "Cycling", "Reading", "Travel Hacking"],
+    languages: ["English", "Irish"],
   },
   {
     name: "Hana Kovář",
     email: "hana.kovar@example.com",
     birthday: "2001-09-07",
-    bio: "Brand strategist from Prague. I run on black coffee and morning markets. My best creative breakthroughs happen in transit — airports, trains, ferries. Always one carry-on, zero checked bags.",
+    job: "Brand strategist",
+    country: "Czech Republic",
+    city: "Prague",
+    bio: "I run on black coffee and morning markets. My best creative breakthroughs happen in transit — airports, trains, ferries. Always one carry-on, zero checked bags.",
     chronotype: "EARLY_BIRD",
     workStartHour: 7,
     workEndHour: 16,
@@ -711,12 +802,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 3,
     budgetTier: "MID_RANGE",
     interests: ["Photography", "Coffee Culture", "Art & Design", "Language Learning", "Mindfulness"],
+    languages: ["Czech", "English", "German"],
   },
   {
     name: "Dmitri Volkov",
     email: "dmitri.volkov@example.com",
     birthday: "1992-11-24",
-    bio: "Quantitative trader from Moscow, now stateless by choice. I think in probabilities and act with precision. Need total silence until 2 PM. After that, I'm surprisingly fun at dinner tables.",
+    job: "Quantitative trader",
+    country: "Russia",
+    city: "Moscow",
+    bio: "I think in probabilities and act with precision. Need total silence until 2 PM. After that, I'm surprisingly fun at dinner tables.",
     chronotype: "NIGHT_OWL",
     workStartHour: 0,
     workEndHour: 14,
@@ -725,12 +820,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 2,
     budgetTier: "PREMIUM",
     interests: ["Reading", "Chess", "Wine", "Mindfulness", "Film"],
+    languages: ["Russian", "English"],
   },
   {
     name: "Chiara Ricci",
     email: "chiara.ricci@example.com",
     birthday: "1997-02-14",
-    bio: "Travel photographer from Florence. Chasing light from dawn to dusk, editing until midnight. Looking for housemates who appreciate a kitchen that smells of garlic and a living room that looks like a mood board.",
+    job: "Travel photographer",
+    country: "Italy",
+    city: "Florence",
+    bio: "Chasing light from dawn to dusk, editing until midnight. Looking for housemates who appreciate a kitchen that smells of garlic and a living room that looks like a mood board.",
     chronotype: "EARLY_BIRD",
     workStartHour: 6,
     workEndHour: 15,
@@ -739,12 +838,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 4,
     budgetTier: "MID_RANGE",
     interests: ["Photography", "Art & Design", "Cooking", "Film", "Hiking"],
+    languages: ["Italian", "English", "French"],
   },
   {
     name: "Ben Okafor",
     email: "ben.okafor@example.com",
     birthday: "1996-06-30",
-    bio: "Web3 developer from Lagos. I build in Solidity and Rust and believe the next internet is decentralised. Night-shift coder, morning meditator. Gym before the laptop, always.",
+    job: "Web3 developer",
+    country: "Nigeria",
+    city: "Lagos",
+    bio: "I build in Solidity and Rust and believe the next internet is decentralised. Night-shift coder, morning meditator. Gym before the laptop, always.",
     chronotype: "NIGHT_OWL",
     workStartHour: 15,
     workEndHour: 23,
@@ -753,12 +856,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 3,
     budgetTier: "MID_RANGE",
     interests: ["Web3", "Open Source", "Mindfulness", "Martial Arts", "Gaming"],
+    languages: ["English", "Igbo"],
   },
   {
     name: "Alma Lindqvist",
     email: "alma.lindqvist@example.com",
     birthday: "2000-06-02",
-    bio: "Wellness tech founder from Stockholm. I build apps that help people sleep better — which is ironic since I work until 1 AM. Passionate about biohacking, cold plunges, and group saunas.",
+    job: "Wellness tech founder",
+    country: "Sweden",
+    city: "Stockholm",
+    bio: "I build apps that help people sleep better — which is ironic since I work until 1 AM. Passionate about biohacking, cold plunges, and group saunas.",
     chronotype: "NIGHT_OWL",
     workStartHour: 12,
     workEndHour: 22,
@@ -767,12 +874,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 5,
     budgetTier: "PREMIUM",
     interests: ["Entrepreneurship", "Mindfulness", "Yoga", "Web3", "Dancing"],
+    languages: ["Swedish", "English"],
   },
   {
     name: "Ryo Fujimoto",
     email: "ryo.fujimoto@example.com",
     birthday: "1998-10-14",
-    bio: "Game developer at an indie studio from Tokyo. I spend 10 hours in flow state, emerge for ramen and green tea, then do it again. Ultra-clean workspace, zero tolerance for chaos.",
+    job: "Game developer at an indie studio",
+    country: "Japan",
+    city: "Tokyo",
+    bio: "I spend 10 hours in flow state, emerge for ramen and green tea, then do it again. Ultra-clean workspace, zero tolerance for chaos.",
     chronotype: "STANDARD",
     workStartHour: 10,
     workEndHour: 20,
@@ -781,12 +892,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 2,
     budgetTier: "MID_RANGE",
     interests: ["Gaming", "Music Production", "Art & Design", "Reading", "Cooking"],
+    languages: ["Japanese", "English"],
   },
   {
     name: "Nina Petrović",
     email: "nina.petrovic@example.com",
     birthday: "2002-04-01",
-    bio: "Graphic novelist from Belgrade. I world-build from 9 to 5 and then I need people and noise — markets, bars, live music. My pod should be a library by day and a living room by night.",
+    job: "Graphic novelist",
+    country: "Serbia",
+    city: "Belgrade",
+    bio: "I world-build from 9 to 5 and then I need people and noise — markets, bars, live music. My pod should be a library by day and a living room by night.",
     chronotype: "STANDARD",
     workStartHour: 9,
     workEndHour: 17,
@@ -795,12 +910,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 5,
     budgetTier: "MID_RANGE",
     interests: ["Art & Design", "Writing", "Film", "Dancing", "Travel Hacking"],
+    languages: ["Serbian", "English", "Croatian"],
   },
   {
     name: "Lorenzo Bianchi",
     email: "lorenzo.bianchi@example.com",
     birthday: "1994-03-19",
-    bio: "Venture capitalist turned solopreneur from Milan. Left the fund to build a media brand for the next generation of European founders. Obsessive about podcasting, wine, and early Tuesday mornings.",
+    job: "Venture capitalist turned solopreneur",
+    country: "Italy",
+    city: "Milan",
+    bio: "Left the fund to build a media brand for the next generation of European founders. Obsessive about podcasting, wine, and early Tuesday mornings.",
     chronotype: "EARLY_BIRD",
     workStartHour: 6,
     workEndHour: 14,
@@ -809,12 +928,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 5,
     budgetTier: "PREMIUM",
     interests: ["Entrepreneurship", "Wine", "Podcast / Recording Studio", "Coffee Culture", "Cycling"],
+    languages: ["Italian", "English", "French"],
   },
   {
     name: "Aisha Traoré",
     email: "aisha.traore@example.com",
     birthday: "1999-09-11",
-    bio: "Social media strategist and dancer from Dakar. I create content in the golden hours and choreograph evenings. Warm, loud, and infectiously enthusiastic — with the headphones to match.",
+    job: "Social media strategist and dancer",
+    country: "Senegal",
+    city: "Dakar",
+    bio: "I create content in the golden hours and choreograph evenings. Warm, loud, and infectiously enthusiastic — with the headphones to match.",
     chronotype: "STANDARD",
     workStartHour: 10,
     workEndHour: 19,
@@ -823,12 +946,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 5,
     budgetTier: "BUDGET",
     interests: ["Dancing", "Music Production", "Photography", "Language Learning", "Cooking"],
+    languages: ["French", "English", "Wolof"],
   },
   {
     name: "Callum Reid",
     email: "callum.reid@example.com",
     birthday: "1995-12-08",
-    bio: "Principal engineer at a fully remote SaaS company from Edinburgh. I value autonomy, directness, and excellent coffee. Working from the same house as my housemates is a feature, not a bug.",
+    job: "Principal engineer at a fully remote SaaS company",
+    country: "United Kingdom",
+    city: "Edinburgh",
+    bio: "I value autonomy, directness, and excellent coffee. Working from the same house as my housemates is a feature, not a bug.",
     chronotype: "EARLY_BIRD",
     workStartHour: 8,
     workEndHour: 17,
@@ -837,12 +964,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 3,
     budgetTier: "MID_RANGE",
     interests: ["Hiking", "Rock Climbing", "Coffee Culture", "Open Source", "Cycling"],
+    languages: ["English"],
   },
   {
     name: "Valentina Cruz",
     email: "valentina.cruz@example.com",
     birthday: "1996-08-23",
-    bio: "Creative director and brand consultant from Buenos Aires. I think in concepts, speak in metaphors, and dress in linen. My mornings are sacred (do not disturb). My evenings are yours.",
+    job: "Creative director and brand consultant",
+    country: "Argentina",
+    city: "Buenos Aires",
+    bio: "I think in concepts, speak in metaphors, and dress in linen. My mornings are sacred (do not disturb). My evenings are yours.",
     chronotype: "STANDARD",
     workStartHour: 10,
     workEndHour: 18,
@@ -851,12 +982,16 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 4,
     budgetTier: "PREMIUM",
     interests: ["Art & Design", "Film", "Photography", "Wine", "Language Learning"],
+    languages: ["Spanish", "English", "Italian"],
   },
   {
     name: "Jonas Müller",
     email: "jonas.mueller@example.com",
     birthday: "1991-05-05",
-    bio: "Machine learning engineer from Stuttgart, ex-FAANG. I work on model training, which means my laptop fans scream while I actually have nothing to do. Quiet, precise, pathologically organised.",
+    job: "Machine learning engineer",
+    country: "Germany",
+    city: "Stuttgart",
+    bio: "I work on model training, which means my laptop fans scream while I actually have nothing to do. Quiet, precise, pathologically organised.",
     chronotype: "STANDARD",
     workStartHour: 9,
     workEndHour: 18,
@@ -865,6 +1000,7 @@ const TRAVELER_SPECS: TravelerSpec[] = [
     socialEnergy: 2,
     budgetTier: "MID_RANGE",
     interests: ["Open Source", "Rock Climbing", "Cycling", "Reading", "Coffee Culture"],
+    languages: ["German", "English"],
   },
 ];
 
@@ -917,6 +1053,9 @@ function buildUserProfiles(
     id: uuid(),
     userId: users[i].id,
     birthday: s.birthday,
+    job: s.job,
+    country: s.country,
+    city: s.city,
     bio: s.bio,
     embedding: null,
     chronotype: s.chronotype,
@@ -944,6 +1083,25 @@ function buildUserTags(
     for (const interest of s.interests) {
       const tagId = tagMap.get(interest);
       if (tagId) rows.push({ profileId: profileId!, tagId });
+    }
+  });
+
+  return rows;
+}
+
+function buildUserLanguages(
+  specs: TravelerSpec[],
+  profiles: ReturnType<typeof buildUserProfiles>,
+  languages: ReturnType<typeof buildLanguages>
+) {
+  const languageMap = new Map(languages.map((language) => [language.name, language.id]));
+  const rows: { profileId: string; languageId: string }[] = [];
+
+  specs.forEach((spec, i) => {
+    const profileId = profiles[i].id;
+    for (const language of spec.languages) {
+      const languageId = languageMap.get(language);
+      if (languageId) rows.push({ profileId: profileId!, languageId });
     }
   });
 
@@ -1125,14 +1283,20 @@ async function seed() {
   const tagInsert = db.insert(schema.tags).values(tagData);
   await (overwrite ? tagInsert : tagInsert.onConflictDoNothing());
 
-  // 6. Users (auth schema)
+  // 6. Languages
+  const languageData = buildLanguages(TRAVELER_SPECS);
+  console.log(`🗣️  Inserting ${languageData.length} languages...`);
+  const languageInsert = db.insert(schema.languages).values(languageData);
+  await (overwrite ? languageInsert : languageInsert.onConflictDoNothing());
+
+  // 7. Users (auth schema)
   const userData = buildUsers(TRAVELER_SPECS);
   console.log(`👤 Inserting ${userData.length} users...`);
   const userInsert = db.insert(authSchema.users).values(userData);
   await (overwrite ? userInsert : userInsert.onConflictDoNothing());
   await syncSeedUsers(userData);
 
-  // 7. Accounts (credential rows)
+  // 8. Accounts (credential rows)
   const accountData = buildAccounts(userData);
   console.log(`🔐 Inserting ${accountData.length} credential accounts...`);
   const accountInsert = db
@@ -1140,7 +1304,7 @@ async function seed() {
     .values(accountData);
   await (overwrite ? accountInsert : accountInsert.onConflictDoNothing());
 
-  // 8. User profiles
+  // 9. User profiles
   const profileData = buildUserProfiles(TRAVELER_SPECS, userData);
   console.log(`📋 Inserting ${profileData.length} user profiles...`);
   const profileInsert = db
@@ -1148,19 +1312,27 @@ async function seed() {
     .values(profileData);
   await (overwrite ? profileInsert : profileInsert.onConflictDoNothing());
 
-  // 9. User tags (interests)
+  // 10. User tags (interests)
   const userTagData = buildUserTags(TRAVELER_SPECS, profileData, tagData);
   console.log(`🎯 Inserting ${userTagData.length} user-tag links...`);
   const userTagInsert = db.insert(schema.userTags).values(userTagData);
   await (overwrite ? userTagInsert : userTagInsert.onConflictDoNothing());
 
-  // 10. Pods (1 per property × 6 months = 72)
+  // 11. User languages
+  const userLanguageData = buildUserLanguages(TRAVELER_SPECS, profileData, languageData);
+  console.log(`🗺️  Inserting ${userLanguageData.length} user-language links...`);
+  const userLanguageInsert = db
+    .insert(schema.userLanguages)
+    .values(userLanguageData);
+  await (overwrite ? userLanguageInsert : userLanguageInsert.onConflictDoNothing());
+
+  // 12. Pods (1 per property × 6 months = 72)
   const podData = buildPods(propertyData);
   console.log(`🫙 Inserting ${podData.length} pods...`);
   const podInsert = db.insert(schema.pods).values(podData);
   await (overwrite ? podInsert : podInsert.onConflictDoNothing());
 
-  // 11. Pod members + status updates
+  // 13. Pod members + status updates
   const { podMembers: podMemberData, podStatusUpdates } = buildPodMemberships(
     podData,
     propertyData,
@@ -1189,6 +1361,7 @@ async function seed() {
   console.log(`   Properties  : ${propertyData.length}`);
   console.log(`   Amenities   : ${amenityData.length}`);
   console.log(`   Tags        : ${tagData.length}`);
+  console.log(`   Languages   : ${languageData.length}`);
   console.log(`   Users       : ${userData.length}`);
   console.log(`   Profiles    : ${profileData.length}`);
   console.log(`   Pods        : ${podData.length}`);
