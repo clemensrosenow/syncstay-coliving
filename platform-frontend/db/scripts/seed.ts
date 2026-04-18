@@ -58,6 +58,119 @@ function pickOne<T>(arr: T[]): T {
   return faker.helpers.arrayElement(arr);
 }
 
+/** Builds a deterministic DiceBear avatar URL for seeded users. */
+function profileImageUrl(seed: string): string {
+  const params = new URLSearchParams({ seed });
+  return `https://api.dicebear.com/9.x/lorelei/svg?${params.toString()}`;
+}
+
+/** Builds a deterministic Picsum URL using a curated static image id. */
+function propertyImageUrl(imageId: number): string {
+  return `https://picsum.photos/id/${imageId}/1600/900`;
+}
+
+function isTruthyFlag(value: string | undefined): boolean {
+  if (!value) return false;
+  return !["0", "false", "no"].includes(value.toLowerCase());
+}
+
+function hasOverwriteFlag(): boolean {
+  return (
+    process.argv.slice(2).some((arg) => arg === "overwrite" || arg === "--overwrite") ||
+    isTruthyFlag(process.env.npm_config_overwrite)
+  );
+}
+
+async function clearExistingData() {
+  console.log("🧹 Overwrite enabled. Removing existing seed data...");
+
+  await db.delete(schema.podMembers);
+  await db.delete(schema.pods);
+  await db.delete(schema.userTags);
+  await db.delete(schema.userProfiles);
+  await db.delete(authSchema.accounts);
+  await db.delete(authSchema.sessions);
+  await db.delete(authSchema.verifications);
+  await db.delete(authSchema.users);
+  await db.delete(schema.propertyAmenities);
+  await db.delete(schema.amenities);
+  await db.delete(schema.properties);
+  await db.delete(schema.tags);
+  await db.delete(schema.locations);
+}
+
+async function syncSeedProperties(
+  propertyData: ReturnType<typeof buildProperties>
+) {
+  for (const property of propertyData) {
+    await db
+      .update(schema.properties)
+      .set({
+        locationId: property.locationId,
+        name: property.name,
+        description: property.description,
+        imageUrl: property.imageUrl,
+        totalRooms: property.totalRooms,
+        minOccupancy: property.minOccupancy,
+        pricePerRoomCents: property.pricePerRoomCents,
+      })
+      .where(eq(schema.properties.id, property.id!));
+  }
+}
+
+async function syncSeedUsers(
+  userData: ReturnType<typeof buildUsers>
+) {
+  for (const user of userData) {
+    await db
+      .update(authSchema.users)
+      .set({
+        name: user.name,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        image: user.image,
+      })
+      .where(eq(authSchema.users.id, user.id));
+  }
+}
+
+async function verifySeedImages() {
+  const [propertyStats] = await sql<{
+    total: number | string;
+    with_images: number | string;
+    null_images: number | string;
+  }[]>`
+    select
+      count(*)::int as total,
+      count(image_url)::int as with_images,
+      count(*) filter (where image_url is null)::int as null_images
+    from properties
+  `;
+
+  const [userStats] = await sql<{
+    total: number | string;
+    with_images: number | string;
+    null_images: number | string;
+  }[]>`
+    select
+      count(*)::int as total,
+      count(image)::int as with_images,
+      count(*) filter (where image is null)::int as null_images
+    from users
+  `;
+
+  const propertyNullImages = Number(propertyStats.null_images);
+  const userNullImages = Number(userStats.null_images);
+
+  if (propertyNullImages > 0 || userNullImages > 0) {
+    throw new Error(
+      `Seed verification failed: properties with NULL image_url=${propertyNullImages}, users with NULL image=${userNullImages}`
+    );
+  }
+
+  console.log("🖼️ Verified property and profile images are populated.");
+}
+
 // ── 1. Location data ──────────────────────────────────────────────
 
 function buildLocations() {
@@ -88,7 +201,7 @@ function buildProperties(
       name: "Casa da Luz — Alfama Retreat",
       description:
         "A fully restored 18th-century townhouse perched above Alfama's terracotta rooftops. Three wraparound terraces spill into each other, framing sweeping views of the Tagus estuary at golden hour. The whitewashed interiors fuse Azulejo heritage with bespoke mid-century furniture hand-selected in Cascais. Fast symmetrical fiber, a cedar garden studio for deep work, and a rooftop plunge pool make this Lisbon's most coveted creative retreat.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(1067),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 189000,
@@ -99,7 +212,7 @@ function buildProperties(
       name: "Miradouro House — Príncipe Real",
       description:
         "Hidden behind a wrought-iron gate in Príncipe Real's most sought-after block, this four-bedroom manor is a love letter to slow mornings and inspired evenings. Original herringbone parquet, statement arched windows, and a courtyard fig tree anchor the space. The kitchen is a chef's dream — marble island, professional range, espresso alcove. Three minutes walk to the Sunday organic market.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(1048),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 149000,
@@ -110,7 +223,7 @@ function buildProperties(
       name: "Ribeira Loft Collective",
       description:
         "A converted 19th-century wine warehouse steps from the Douro River, reimagined as an airy loft collective with exposed granite walls and steel mezzanines. Each room opens onto a shared gallery walkway overlooking the soaring original nave. The ground level hosts a fully equipped podcast studio, a vinyl lounge, and a professional coffee bar. UNESCO-listed Cais da Ribeira begins at the front door.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(1031),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 129000,
@@ -121,7 +234,7 @@ function buildProperties(
       name: "Vila das Flores — Bonfim Studio House",
       description:
         "A sun-drenched early-20th-century villa in Porto's creative Bonfim quarter, lovingly converted into a six-room coliving sanctuary. The double-height garden pavilion doubles as a serene co-working studio by day and an intimate screening room by night. Locally roasted coffee is permanently stocked, the garden produces herbs year-round, and the tram to the beach departs from the corner.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(1025),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 119000,
@@ -132,7 +245,7 @@ function buildProperties(
       name: "El Carmen Social House",
       description:
         "Inside Valencia's medieval walled quarter, this jaw-dropping 16th-century palacete has been restored with obsessive precision — original stone arches, hand-painted ceilings, and a tranquil inner cloister courtyard where jasmine climbs the walls. The four bedrooms are built for focus; the communal rooftop is built for life. Five-minute bike ride to the city's co-working strip along Colón.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(1018),
       totalRooms: 4,
       minOccupancy: 3,
       pricePerRoomCents: 139000,
@@ -143,7 +256,7 @@ function buildProperties(
       name: "Eixample Skyline Penthouse",
       description:
         "A full-floor penthouse crowning an early Modernisme building in the heart of Eixample — Gaudí's neighbourhood, your creative laboratory. Floor-to-ceiling windows frame an unbroken panorama from Tibidabo to the sea. The interiors are a deliberate counterpoint: warm walnut, linen, and copper tones that ground the soaring space. Two private work pods with standing desks and monitor screens ensure focus never competes with the view.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(1008),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 219000,
@@ -154,7 +267,7 @@ function buildProperties(
       name: "Poblenou Maker Loft",
       description:
         "Barcelona's fastest-evolving tech quarter hosts this 300 m² live/work loft, converted from a 1960s printing house. Polished concrete meets Bauhaus-inspired furniture; the original overhead cranes are now sculptural bookmarks in the double-height workspace. A private rooftop deck, on-site film darkroom, and 2 Gbps symmetrical fiber make this the studio where digital creators come to produce their best work.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(1005),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 179000,
@@ -165,7 +278,7 @@ function buildProperties(
       name: "Sol y Mar — Málaga Centro",
       description:
         "A light-flooded Andalusian townhouse in Málaga's buzzing historic centre, one block from the Picasso Museum. The five en-suite bedrooms are wrapped in hand-glazed terracotta and linen — cool even in deepest summer. A rooftop hammam terrace with a heated plunge pool presides over a roofscape of orange trees and church domes. Fibre broadband, a private courtyard, and daily fresh-squeezed orange juice are standard.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(999),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 109000,
@@ -176,7 +289,7 @@ function buildProperties(
       name: "Finca Digital — Sineu Valley",
       description:
         "Thirty minutes from Palma's old town, this restored Mallorcan finca sits in an almond grove with unfettered views across the Tramuntana foothills. Stone walls, exposed timber beams, and a saltwater infinity pool overlooking silent countryside. An on-site yoga shala opens at dawn; the chef-grade kitchen hosts weekly communal dinners. The island's best beaches are 25 minutes away — so is Palma airport.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(988),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 159000,
@@ -187,7 +300,7 @@ function buildProperties(
       name: "Acropolis View Collective",
       description:
         "A fully renovated neoclassical mansion in Athens's artsy Koukaki district, where every window frames the floodlit Parthenon after dark. Marble floors cooled by Mediterranean breezes, a rooftop al-fresco kitchen for evening gatherings, and an underground library stocked with philosophy, architecture, and design volumes. The neighbourhood is dense with microbreweries, natural-wine bars, and independent bookshops — Athens at its most liveable.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(976),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 99000,
@@ -198,7 +311,7 @@ function buildProperties(
       name: "Monastiraki Tech House",
       description:
         "In the shadow of the ancient Agora, this four-storey townhouse pulses with the energy of Athens's booming startup scene. Each floor has been converted into a self-contained suite with private kitchenette and a dedicated 4K monitor workspace. The shared rooftop bar is the city's worst-kept secret — sunset cocktails with the Acropolis as your backdrop, six nights a week.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(944),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 89000,
@@ -209,7 +322,7 @@ function buildProperties(
       name: "Dioklecijan House — Diocletian's Quarter",
       description:
         "Embedded within the living walls of Diocletian's Palace — a UNESCO site dating to 305 AD — this extraordinary residence puts 1,700 years of history at your doorstep. Vaulted Roman ceilings, stone walls a metre thick, and a private terrace above the Peristyle square are complemented by thoroughly modern amenities: 10 Gbps fibre, Sonos throughout, and an architect-designed co-working loft in the old stables. The Adriatic is a four-minute walk.",
-      imageUrl: null,
+      imageUrl: propertyImageUrl(930),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 134000,
@@ -762,7 +875,7 @@ function buildUsers(specs: TravelerSpec[]) {
     name: s.name,
     email: s.email,
     emailVerified: true as boolean,
-    image: null as string | null,
+    image: profileImageUrl(s.name),
     createdAt: now,
     updatedAt: now,
   }));
@@ -969,69 +1082,83 @@ function buildPodMemberships(
 // ── Main seed function ────────────────────────────────────────────
 
 async function seed() {
-  console.log("🌱 Starting SyncStay seed...\n");
+  const overwrite = hasOverwriteFlag();
+  console.log(`🌱 Starting SyncStay seed${overwrite ? " (overwrite mode)" : ""}...\n`);
+
+  if (overwrite) {
+    await clearExistingData();
+    console.log("");
+  }
 
   // 1. Locations
   const locationData = buildLocations();
   console.log(`📍 Inserting ${locationData.length} locations...`);
-  await db
+  const locationInsert = db
     .insert(schema.locations)
-    .values([...locationData])
-    .onConflictDoNothing();
+    .values([...locationData]);
+  await (overwrite ? locationInsert : locationInsert.onConflictDoNothing());
 
   // 2. Properties
   const propertyData = buildProperties(locationData);
   console.log(`🏠 Inserting ${propertyData.length} properties...`);
-  await db.insert(schema.properties).values(propertyData).onConflictDoNothing();
+  const propertyInsert = db.insert(schema.properties).values(propertyData);
+  await (overwrite ? propertyInsert : propertyInsert.onConflictDoNothing());
+  await syncSeedProperties(propertyData);
 
   // 3. Amenities
   const amenityData = buildAmenities();
   console.log(`✨ Inserting ${amenityData.length} amenities...`);
-  await db.insert(schema.amenities).values(amenityData).onConflictDoNothing();
+  const amenityInsert = db.insert(schema.amenities).values(amenityData);
+  await (overwrite ? amenityInsert : amenityInsert.onConflictDoNothing());
 
   // 4. Property ↔ Amenities linking
   const propertyAmenityData = buildPropertyAmenities(propertyData, amenityData);
   console.log(`🔗 Inserting ${propertyAmenityData.length} property-amenity links...`);
-  await db
+  const propertyAmenityInsert = db
     .insert(schema.propertyAmenities)
-    .values(propertyAmenityData)
-    .onConflictDoNothing();
+    .values(propertyAmenityData);
+  await (overwrite ? propertyAmenityInsert : propertyAmenityInsert.onConflictDoNothing());
 
   // 5. Tags
   const tagData = buildTags();
   console.log(`🏷️  Inserting ${tagData.length} tags...`);
-  await db.insert(schema.tags).values(tagData).onConflictDoNothing();
+  const tagInsert = db.insert(schema.tags).values(tagData);
+  await (overwrite ? tagInsert : tagInsert.onConflictDoNothing());
 
   // 6. Users (auth schema)
   const userData = buildUsers(TRAVELER_SPECS);
   console.log(`👤 Inserting ${userData.length} users...`);
-  await db.insert(authSchema.users).values(userData).onConflictDoNothing();
+  const userInsert = db.insert(authSchema.users).values(userData);
+  await (overwrite ? userInsert : userInsert.onConflictDoNothing());
+  await syncSeedUsers(userData);
 
   // 7. Accounts (credential rows)
   const accountData = buildAccounts(userData);
   console.log(`🔐 Inserting ${accountData.length} credential accounts...`);
-  await db
+  const accountInsert = db
     .insert(authSchema.accounts)
-    .values(accountData)
-    .onConflictDoNothing();
+    .values(accountData);
+  await (overwrite ? accountInsert : accountInsert.onConflictDoNothing());
 
   // 8. User profiles
   const profileData = buildUserProfiles(TRAVELER_SPECS, userData);
   console.log(`📋 Inserting ${profileData.length} user profiles...`);
-  await db
+  const profileInsert = db
     .insert(schema.userProfiles)
-    .values(profileData)
-    .onConflictDoNothing();
+    .values(profileData);
+  await (overwrite ? profileInsert : profileInsert.onConflictDoNothing());
 
   // 9. User tags (interests)
   const userTagData = buildUserTags(TRAVELER_SPECS, profileData, tagData);
   console.log(`🎯 Inserting ${userTagData.length} user-tag links...`);
-  await db.insert(schema.userTags).values(userTagData).onConflictDoNothing();
+  const userTagInsert = db.insert(schema.userTags).values(userTagData);
+  await (overwrite ? userTagInsert : userTagInsert.onConflictDoNothing());
 
   // 10. Pods (1 per property × 6 months = 72)
   const podData = buildPods(propertyData);
   console.log(`🫙 Inserting ${podData.length} pods...`);
-  await db.insert(schema.pods).values(podData).onConflictDoNothing();
+  const podInsert = db.insert(schema.pods).values(podData);
+  await (overwrite ? podInsert : podInsert.onConflictDoNothing());
 
   // 11. Pod members + status updates
   const { podMembers: podMemberData, podStatusUpdates } = buildPodMemberships(
@@ -1041,10 +1168,10 @@ async function seed() {
   );
 
   console.log(`🤝 Inserting ${podMemberData.length} pod memberships...`);
-  await db
+  const podMemberInsert = db
     .insert(schema.podMembers)
-    .values(podMemberData)
-    .onConflictDoNothing();
+    .values(podMemberData);
+  await (overwrite ? podMemberInsert : podMemberInsert.onConflictDoNothing());
 
   // 12. Update pod statuses (LOCKED / FULL) after members are inserted
   console.log(`🔄 Updating ${podStatusUpdates.length} pod statuses...`);
@@ -1055,6 +1182,8 @@ async function seed() {
       .where(eq(schema.pods.id, update.id));
   }
 
+  await verifySeedImages();
+
   console.log("\n✅ Seed complete!");
   console.log(`   Locations   : ${locationData.length}`);
   console.log(`   Properties  : ${propertyData.length}`);
@@ -1064,6 +1193,9 @@ async function seed() {
   console.log(`   Profiles    : ${profileData.length}`);
   console.log(`   Pods        : ${podData.length}`);
   console.log(`   Memberships : ${podMemberData.length}`);
+  if (overwrite) {
+    console.log("   Mode        : overwrite");
+  }
 }
 
 seed().catch((err) => {
