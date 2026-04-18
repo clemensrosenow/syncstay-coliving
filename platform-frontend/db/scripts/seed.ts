@@ -138,30 +138,28 @@ async function syncSeedUsers(
   }
 }
 
+interface SeedStats {
+  total: number | string;
+  with_images: number | string;
+  null_images: number | string;
+}
+
 async function verifySeedImages() {
-  const [propertyStats] = await sql<{
-    total: number | string;
-    with_images: number | string;
-    null_images: number | string;
-  }[]>`
+  const [propertyStats] = (await sql`
     select
       count(*)::int as total,
       count(image_url)::int as with_images,
       count(*) filter (where image_url is null)::int as null_images
     from properties
-  `;
+  `) as unknown as SeedStats[];
 
-  const [userStats] = await sql<{
-    total: number | string;
-    with_images: number | string;
-    null_images: number | string;
-  }[]>`
+  const [userStats] = (await sql`
     select
       count(*)::int as total,
       count(image)::int as with_images,
       count(*) filter (where image is null)::int as null_images
     from users
-  `;
+  `) as unknown as SeedStats[];
 
   const propertyNullImages = Number(propertyStats.null_images);
   const userNullImages = Number(userStats.null_images);
@@ -205,7 +203,7 @@ function buildProperties(
       name: "Casa da Luz — Alfama Retreat",
       description:
         "A fully restored 18th-century townhouse perched above Alfama's terracotta rooftops. Three wraparound terraces spill into each other, framing sweeping views of the Tagus estuary at golden hour. The whitewashed interiors fuse Azulejo heritage with bespoke mid-century furniture hand-selected in Cascais. Fast symmetrical fiber, a cedar garden studio for deep work, and a rooftop plunge pool make this Lisbon's most coveted creative retreat.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1733111162385-9475930a4d1a"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 189000,
@@ -216,7 +214,7 @@ function buildProperties(
       name: "Miradouro House — Príncipe Real",
       description:
         "Hidden behind a wrought-iron gate in Príncipe Real's most sought-after block, this four-bedroom manor is a love letter to slow mornings and inspired evenings. Original herringbone parquet, statement arched windows, and a courtyard fig tree anchor the space. The kitchen is a chef's dream — marble island, professional range, espresso alcove. Three minutes walk to the Sunday organic market.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1628091273573-bf99f8f66bde"),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 149000,
@@ -227,7 +225,7 @@ function buildProperties(
       name: "Ribeira Loft Collective",
       description:
         "A converted 19th-century wine warehouse steps from the Douro River, reimagined as an airy loft collective with exposed granite walls and steel mezzanines. Each room opens onto a shared gallery walkway overlooking the soaring original nave. The ground level hosts a fully equipped podcast studio, a vinyl lounge, and a professional coffee bar. UNESCO-listed Cais da Ribeira begins at the front door.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1653668427976-e77034e9990f"),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 129000,
@@ -238,7 +236,7 @@ function buildProperties(
       name: "Vila das Flores — Bonfim Studio House",
       description:
         "A sun-drenched early-20th-century villa in Porto's creative Bonfim quarter, lovingly converted into a six-room coliving sanctuary. The double-height garden pavilion doubles as a serene co-working studio by day and an intimate screening room by night. Locally roasted coffee is permanently stocked, the garden produces herbs year-round, and the tram to the beach departs from the corner.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1594133817896-8644162c3198"),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 119000,
@@ -249,7 +247,7 @@ function buildProperties(
       name: "El Carmen Social House",
       description:
         "Inside Valencia's medieval walled quarter, this jaw-dropping 16th-century palacete has been restored with obsessive precision — original stone arches, hand-painted ceilings, and a tranquil inner cloister courtyard where jasmine climbs the walls. The four bedrooms are built for focus; the communal rooftop is built for life. Five-minute bike ride to the city's co-working strip along Colón.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1740258662768-b46a3f3f0c06"),
       totalRooms: 4,
       minOccupancy: 3,
       pricePerRoomCents: 139000,
@@ -260,7 +258,7 @@ function buildProperties(
       name: "Eixample Skyline Penthouse",
       description:
         "A full-floor penthouse crowning an early Modernisme building in the heart of Eixample — Gaudí's neighbourhood, your creative laboratory. Floor-to-ceiling windows frame an unbroken panorama from Tibidabo to the sea. The interiors are a deliberate counterpoint: warm walnut, linen, and copper tones that ground the soaring space. Two private work pods with standing desks and monitor screens ensure focus never competes with the view.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1711426793036-cc10917d34a9"),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 219000,
@@ -271,7 +269,7 @@ function buildProperties(
       name: "Poblenou Maker Loft",
       description:
         "Barcelona's fastest-evolving tech quarter hosts this 300 m² live/work loft, converted from a 1960s printing house. Polished concrete meets Bauhaus-inspired furniture; the original overhead cranes are now sculptural bookmarks in the double-height workspace. A private rooftop deck, on-site film darkroom, and 2 Gbps symmetrical fiber make this the studio where digital creators come to produce their best work.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1600596542815-ffad4c1539a9"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 179000,
@@ -282,7 +280,7 @@ function buildProperties(
       name: "Sol y Mar — Málaga Centro",
       description:
         "A light-flooded Andalusian townhouse in Málaga's buzzing historic centre, one block from the Picasso Museum. The five en-suite bedrooms are wrapped in hand-glazed terracotta and linen — cool even in deepest summer. A rooftop hammam terrace with a heated plunge pool presides over a roofscape of orange trees and church domes. Fibre broadband, a private courtyard, and daily fresh-squeezed orange juice are standard.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1690182009690-a17b3716bc2d"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 109000,
@@ -293,7 +291,7 @@ function buildProperties(
       name: "Finca Digital — Sineu Valley",
       description:
         "Thirty minutes from Palma's old town, this restored Mallorcan finca sits in an almond grove with unfettered views across the Tramuntana foothills. Stone walls, exposed timber beams, and a saltwater infinity pool overlooking silent countryside. An on-site yoga shala opens at dawn; the chef-grade kitchen hosts weekly communal dinners. The island's best beaches are 25 minutes away — so is Palma airport.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1562239409-b5c79828df9e"),
       totalRooms: 6,
       minOccupancy: 4,
       pricePerRoomCents: 159000,
@@ -315,7 +313,7 @@ function buildProperties(
       name: "Monastiraki Tech House",
       description:
         "In the shadow of the ancient Agora, this four-storey townhouse pulses with the energy of Athens's booming startup scene. Each floor has been converted into a self-contained suite with private kitchenette and a dedicated 4K monitor workspace. The shared rooftop bar is the city's worst-kept secret — sunset cocktails with the Acropolis as your backdrop, six nights a week.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1684197121172-1ac0ae9676ef"),
       totalRooms: 4,
       minOccupancy: 2,
       pricePerRoomCents: 89000,
@@ -326,7 +324,7 @@ function buildProperties(
       name: "Dioklecijan House — Diocletian's Quarter",
       description:
         "Embedded within the living walls of Diocletian's Palace — a UNESCO site dating to 305 AD — this extraordinary residence puts 1,700 years of history at your doorstep. Vaulted Roman ceilings, stone walls a metre thick, and a private terrace above the Peristyle square are complemented by thoroughly modern amenities: 10 Gbps fibre, Sonos throughout, and an architect-designed co-working loft in the old stables. The Adriatic is a four-minute walk.",
-      imageUrl: propertyImageUrl("1649264708810-c63a12dbf7c6"),
+      imageUrl: propertyImageUrl("1773448246047-18dd9b6c5aaf"),
       totalRooms: 5,
       minOccupancy: 3,
       pricePerRoomCents: 134000,
