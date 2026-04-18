@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 
 import BookingSidebar from './components/BookingSidebar'
 import PodsOverview from './components/PodsOverview'
+import PropertyAmenities from './components/PropertyAmenities'
+import PropertyDescription from './components/PropertyDescription'
 import PropertyHero from './components/PropertyHero'
 import { getPropertyDetailData } from './lib/data'
 import { type PropertyDetailPageProps } from './lib/types'
@@ -20,16 +22,23 @@ export default async function PropertyDetailPage(props: PropertyDetailPageProps)
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-24 pb-24">
+    <div className="min-h-screen bg-white pt-24 pb-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="space-y-8">
           <PropertyHero property={data.property} />
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-            <PodsOverview pods={data.pods} />
+            <div className="space-y-8">
+              <PropertyDescription property={data.property} />
+              <PropertyAmenities property={data.property} />
+              <PodsOverview
+                availableMonths={data.availableMonths}
+                pods={data.pods}
+                selectedMonthValue={data.selectedMonthValue}
+              />
+            </div>
             <BookingSidebar
               propertyId={data.property.id}
               pricePerRoom={data.property.pricePerRoom}
-              roomCount={data.property.totalRooms}
               selectedPod={data.selectedPod}
             />
           </div>

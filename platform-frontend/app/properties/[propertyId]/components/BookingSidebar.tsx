@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, BedDouble, CalendarRange, ShieldCheck } from 'lucide-react'
+import { ArrowRight, CalendarRange, ShieldCheck } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
@@ -9,14 +9,12 @@ import { type PropertyPodMonth } from '../lib/types'
 interface BookingSidebarProps {
   propertyId: string
   pricePerRoom: number
-  roomCount: number
   selectedPod: PropertyPodMonth | null
 }
 
 export default function BookingSidebar({
   propertyId,
   pricePerRoom,
-  roomCount,
   selectedPod,
 }: BookingSidebarProps) {
   const content = getBookingCtaContent(

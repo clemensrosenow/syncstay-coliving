@@ -193,7 +193,7 @@ export function getBookingCtaContent(selectedPod: {
   if (selectedPod.condition === 'EMPTY') {
     return {
       title: 'Start this pod',
-      body: 'You open the pod for this month.',
+      body: 'Your commitment starts the pod. Booking opens once enough members join.',
       buttonLabel: 'Commit to pod',
       disabled: false,
     }
@@ -204,7 +204,7 @@ export function getBookingCtaContent(selectedPod: {
       title: 'Join this pod',
       body: `${selectedPod.membersNeededToLock} more ${
         selectedPod.membersNeededToLock === 1 ? 'person' : 'people'
-      } needed to lock it.`,
+      } need to commit before booking opens for this pod.`,
       buttonLabel: 'Commit to pod',
       disabled: false,
     }
@@ -213,7 +213,7 @@ export function getBookingCtaContent(selectedPod: {
   if (selectedPod.condition === 'LOCKED') {
     return {
       title: 'Book your room',
-      body: `${selectedPod.memberCount} members already committed.`,
+      body: `${selectedPod.memberCount} members have committed, so booking is now open.`,
       buttonLabel: 'Book room',
       disabled: false,
     }

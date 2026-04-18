@@ -3,6 +3,20 @@ export interface PropertyDetailPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
+export interface PropertyDetailProperty {
+  id: string
+  name: string
+  description: string | null
+  imageUrl: string | null
+  locationName: string
+  locationSlug: string
+  country: string
+  totalRooms: number
+  minOccupancy: number
+  pricePerRoom: number
+  amenities: string[]
+}
+
 export type PodCondition = 'EMPTY' | 'OPEN' | 'LOCKED' | 'FULL'
 
 export interface PropertyDetailMember {
@@ -25,6 +39,11 @@ export interface ActiveUserContext {
   tags: string[]
 }
 
+export interface PropertyAvailableMonth {
+  value: string
+  label: string
+}
+
 export interface PropertyPodMonth {
   monthValue: string
   monthLabel: string
@@ -40,20 +59,9 @@ export interface PropertyPodMonth {
 }
 
 export interface PropertyDetailData {
-  property: {
-    id: string
-    name: string
-    description: string | null
-    imageUrl: string | null
-    locationName: string
-    locationSlug: string
-    country: string
-    totalRooms: number
-    minOccupancy: number
-    pricePerRoom: number
-    amenities: string[]
-  }
+  property: PropertyDetailProperty
   pods: PropertyPodMonth[]
+  availableMonths: PropertyAvailableMonth[]
   activeUserId: string | null
   selectedMonthValue: string | null
   selectedPod: PropertyPodMonth | null

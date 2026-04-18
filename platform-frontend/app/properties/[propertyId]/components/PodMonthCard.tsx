@@ -6,12 +6,9 @@ import {
   PhoneCall,
   Sparkles,
   SunMedium,
-  Users,
-  UserPlus,
 } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 
 import {
   formatWorkHours,
@@ -26,24 +23,16 @@ interface PodMonthCardProps {
 
 const conditionMap = {
   EMPTY: {
-    label: 'Empty pod',
-    accent: 'bg-emerald-50 text-emerald-800',
-    icon: UserPlus,
+    label: 'Be first',
   },
   OPEN: {
-    label: 'Not filled yet',
-    accent: 'bg-amber-50 text-amber-900',
-    icon: Clock3,
+    label: 'Filling up',
   },
   LOCKED: {
-    label: 'Locked',
-    accent: 'bg-sky-50 text-sky-800',
-    icon: LockKeyhole,
+    label: 'Ready to book',
   },
   FULL: {
-    label: 'Not bookable',
-    accent: 'bg-slate-200 text-slate-700',
-    icon: Users,
+    label: 'Full',
   },
 } as const
 
@@ -96,7 +85,16 @@ const workStyleMap = {
 
 export default function PodMonthCard({ pod }: PodMonthCardProps) {
   const condition = conditionMap[pod.condition]
-  const ConditionIcon = condition.icon
+  const bookingOpenCopy =
+    pod.membersNeededToLock === 0
+      ? 'Booking is open'
+      : `${pod.membersNeededToLock} more ${
+          pod.membersNeededToLock === 1 ? 'member' : 'members'
+        } before booking opens`
+  const spotsLeftCopy =
+    pod.spotsLeft === 0
+      ? 'No spots left'
+      : `${pod.spotsLeft} ${pod.spotsLeft === 1 ? 'spot' : 'spots'} open`
 
   return (
     <article className="rounded-[1.75rem] border border-white/70 bg-white/90 p-6 shadow-[0_18px_55px_rgba(15,23,42,0.06)]">
@@ -108,15 +106,11 @@ export default function PodMonthCard({ pod }: PodMonthCardProps) {
               : `${pod.memberCount} ${pod.memberCount === 1 ? 'member' : 'members'} so far`}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Badge className={`${condition.accent} border-0 px-3 py-1`}>
-            <ConditionIcon size={14} />
-            {condition.label}
-          </Badge>
           {pod.matchScore !== null ? (
-            <Badge className="border-0 bg-sky-100 px-3 py-1 text-sky-800 hover:bg-sky-100">
+            <span className="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-sm font-medium text-sky-800">
               <Sparkles size={14} />
               {pod.matchScore}% match
-            </Badge>
+            </span>
           ) : null}
         </div>
       </div>
@@ -127,12 +121,12 @@ export default function PodMonthCard({ pod }: PodMonthCardProps) {
           <p className="mt-1 text-base font-semibold text-slate-900">{condition.label}</p>
         </div>
         <div className="rounded-2xl bg-slate-50 px-4 py-4">
-          <p className="text-sm font-medium text-slate-500">Needed to lock</p>
-          <p className="mt-1 text-base font-semibold text-slate-900">{pod.membersNeededToLock}</p>
+          <p className="text-sm font-medium text-slate-500">Booking opens</p>
+          <p className="mt-1 text-base font-semibold text-slate-900">{bookingOpenCopy}</p>
         </div>
         <div className="rounded-2xl bg-slate-50 px-4 py-4">
-          <p className="text-sm font-medium text-slate-500">Rooms left</p>
-          <p className="mt-1 text-base font-semibold text-slate-900">{pod.spotsLeft}</p>
+          <p className="text-sm font-medium text-slate-500">Spots open</p>
+          <p className="mt-1 text-base font-semibold text-slate-900">{spotsLeftCopy}</p>
         </div>
       </div>
 

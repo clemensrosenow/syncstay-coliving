@@ -1,5 +1,5 @@
 import { headers } from 'next/headers'
-import { and, asc, eq, gte, inArray } from 'drizzle-orm'
+import { and, asc, eq, inArray } from 'drizzle-orm'
 
 import { users } from '@/auth-schema'
 import { rankPods } from '@/app/search/lib/rank-pods'
@@ -66,7 +66,18 @@ export async function getPropertyDetailData(input: {
   monthParam: string | string[] | undefined
 }): Promise<PropertyDetailData | null> {
   const selectedMonthValue = parseMonthParam(input.monthParam)
-  const currentMonthStart = `${new Date().toISOString().slice(0, 7)}-01`
+  const availableMonths = Array.from({ length: 9 }, (_, index) => {
+    const date = new Date()
+    date.setDate(1)
+    date.setMonth(date.getMonth() + index)
+
+    const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+
+    return {
+      value,
+      label: formatMonthLabel(value),
+    }
+  })
 
   const [session, propertyRow] = await Promise.all([
     auth.api.getSession({
@@ -106,22 +117,17 @@ export async function getPropertyDetailData(input: {
       .from(propertyAmenities)
       .innerJoin(amenities, eq(amenities.id, propertyAmenities.amenityId))
       .where(eq(propertyAmenities.propertyId, propertyRow.id)),
-    db
-      .select({
-        id: pods.id,
-        month: pods.month,
-        status: pods.status,
-      })
-      .from(pods)
-      .where(
-        and(
-          eq(pods.propertyId, propertyRow.id),
-          selectedMonthValue
-            ? eq(pods.month, `${selectedMonthValue}-01`)
-            : gte(pods.month, currentMonthStart)
-        )
-      )
-      .orderBy(asc(pods.month)),
+    selectedMonthValue
+      ? db
+          .select({
+            id: pods.id,
+            month: pods.month,
+            status: pods.status,
+          })
+          .from(pods)
+          .where(and(eq(pods.propertyId, propertyRow.id), eq(pods.month, `${selectedMonthValue}-01`)))
+          .orderBy(asc(pods.month))
+      : Promise.resolve([]),
     getActiveUserContext(activeUserId),
   ])
 
@@ -290,6 +296,7 @@ export async function getPropertyDetailData(input: {
       amenities: amenityRows.map((amenityRow) => amenityRow.label),
     },
     pods: podMonths,
+    availableMonths,
     activeUserId,
     selectedMonthValue,
     selectedPod,

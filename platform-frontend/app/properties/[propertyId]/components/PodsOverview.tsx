@@ -1,12 +1,17 @@
-import { type PropertyPodMonth } from '../lib/types'
+import { type PropertyAvailableMonth, type PropertyPodMonth } from '../lib/types'
 import PodMonthCard from './PodMonthCard'
+import PodsMonthSelect from './PodsMonthSelect'
 
 interface PodsOverviewProps {
+  availableMonths: PropertyAvailableMonth[]
   pods: PropertyPodMonth[]
+  selectedMonthValue: string | null
 }
 
 export default function PodsOverview({
+  availableMonths,
   pods,
+  selectedMonthValue,
 }: PodsOverviewProps) {
   return (
     <section className="space-y-6">
@@ -24,9 +29,18 @@ export default function PodsOverview({
         </div>
       </div>
 
-      {pods.length === 0 ? (
+      <PodsMonthSelect
+        availableMonths={availableMonths}
+        selectedMonthValue={selectedMonthValue}
+      />
+
+      {!selectedMonthValue ? (
         <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white/70 px-6 py-12 text-center text-slate-500">
-          No future pods are scheduled for this property yet.
+          Select a month to view the pod for that stay.
+        </div>
+      ) : pods.length === 0 ? (
+        <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white/70 px-6 py-12 text-center text-slate-500">
+          No pod is scheduled for this month yet.
         </div>
       ) : (
         <div className="grid gap-5">
