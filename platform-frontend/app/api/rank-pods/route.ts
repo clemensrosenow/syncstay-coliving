@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { rankPods, rankPodsRequestSchema } from '@/app/search/lib/rank-pods'
+import { rankPods, rankPodsRequestSchema } from '@/lib/data/rank-pods'
 
 const rankPodsApiRequestSchema = z.union([
   rankPodsRequestSchema,

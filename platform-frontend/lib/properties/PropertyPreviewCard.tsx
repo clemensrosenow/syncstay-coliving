@@ -17,19 +17,18 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item'
+import { type SearchProperty } from '@/app/search/lib/types'
+import { getMemberInitials, getPodStateDetails } from '@/app/search/lib/utils'
 
-import { type SearchProperty } from '../lib/types'
-import { getMemberInitials, getPodStateDetails } from '../lib/utils'
-
-interface SearchPropertyCardProps {
+interface PropertyPreviewCardProps {
   property: SearchProperty
   isSignedIn: boolean
 }
 
-export default function SearchPropertyCard({
+export default function PropertyPreviewCard({
   property,
   isSignedIn,
-}: SearchPropertyCardProps) {
+}: PropertyPreviewCardProps) {
   const podState = getPodStateDetails({
     isSignedIn,
     memberCount: property.podMemberCount,
@@ -53,7 +52,7 @@ export default function SearchPropertyCard({
               alt={property.name}
               fill
               unoptimized
-              sizes="(min-width: 768px) 50vw, 100vw"
+              sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
@@ -64,15 +63,15 @@ export default function SearchPropertyCard({
           <div className="absolute inset-0 bg-black/10" />
           <div className="absolute bottom-3 left-3">
             <Badge variant="outline" className="bg-background/90 backdrop-blur">
-              {property.spotsLeft > 0 ? `${property.spotsLeft} ${property.spotsLeft === 1 ? 'spot' : 'spots'} left` : 'Pod is full'}
+              {property.spotsLeft > 0
+                ? `${property.spotsLeft} ${property.spotsLeft === 1 ? 'spot' : 'spots'} left`
+                : 'Pod is full'}
             </Badge>
           </div>
 
           {property.matchScore !== null && (
             <div className="absolute top-3 right-3">
-              <Badge
-                className="bg-primary text-primary-foreground flex items-center gap-1 shadow-sm"
-              >
+              <Badge className="bg-primary text-primary-foreground flex items-center gap-1 shadow-sm">
                 <Sparkles size={12} />
                 {property.matchScore}% match
               </Badge>
@@ -80,7 +79,7 @@ export default function SearchPropertyCard({
           )}
         </div>
 
-        <CardContent className="p-5 flex-1 flex flex-col">
+        <CardContent className="flex flex-1 flex-col p-5">
           <h3 className="font-display mb-1 line-clamp-1 text-lg font-bold">
             {property.name}
           </h3>
@@ -93,10 +92,7 @@ export default function SearchPropertyCard({
               'Thoughtfully designed for long stays, meaningful routines, and a pod that feels easy to join.'}
           </p>
 
-          <Item
-            variant="muted"
-            className="mt-6 mb-4 rounded-xl"
-          >
+          <Item variant="muted" className="mt-6 mb-4 rounded-xl">
             <ItemMedia>
               {showMemberAvatars ? (
                 <AvatarGroup>
@@ -135,9 +131,7 @@ export default function SearchPropertyCard({
           </Item>
 
           <div className="mt-auto flex items-end justify-between pt-4 text-sm font-medium">
-            <span className="text-base font-semibold">
-              {property.priceBase} EUR/mo
-            </span>
+            <span className="text-base font-semibold">{property.priceBase} EUR/mo</span>
             <span className="text-primary flex items-center gap-1 transition-all group-hover:px-1">
               {property.ctaLabel} <ArrowRight size={14} />
             </span>

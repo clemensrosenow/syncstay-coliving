@@ -9,7 +9,7 @@ import {
   type PodRankingMember,
   type RankPodsRequest,
   type RankPodsResponse,
-} from './types'
+} from '@/app/search/lib/types'
 
 export const rankPodsRequestSchema = z.object({
   activeUserId: z.uuid(),

@@ -2,8 +2,8 @@ import { headers } from 'next/headers'
 import { and, asc, eq, inArray } from 'drizzle-orm'
 
 import { users } from '@/auth-schema'
-import { rankPods } from '@/app/search/lib/rank-pods'
 import { auth } from '@/lib/auth'
+import { rankPods } from '@/lib/data/rank-pods'
 import { db } from '@/db/drizzle'
 import {
   amenities,

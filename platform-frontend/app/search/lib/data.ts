@@ -4,6 +4,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { db } from '@/db/drizzle'
 import { locations, pods, properties } from '@/db/schema'
 import { auth } from '@/lib/auth'
+import { rankPods } from '@/lib/data/rank-pods'
 
 import {
   type ParsedSearchParams,
@@ -13,7 +14,6 @@ import {
   type SearchProperty,
   type PodStatus,
 } from './types'
-import { rankPods } from './rank-pods'
 import {
   clampMatchPercentage,
   formatMonthLabel,
@@ -213,13 +213,13 @@ export async function getSearchPageData(
   const [podRows, session] = await Promise.all([
     propertyIds.length > 0
       ? db
-          .select({
-            propertyId: pods.propertyId,
-            month: pods.month,
-            status: pods.status,
-          })
-          .from(pods)
-          .where(and(inArray(pods.propertyId, propertyIds), eq(pods.month, searchPodMonth)))
+        .select({
+          propertyId: pods.propertyId,
+          month: pods.month,
+          status: pods.status,
+        })
+        .from(pods)
+        .where(and(inArray(pods.propertyId, propertyIds), eq(pods.month, searchPodMonth)))
       : Promise.resolve([]),
     auth.api.getSession({
       headers: new Headers(await headers()),
@@ -234,10 +234,10 @@ export async function getSearchPageData(
   const podRankings =
     parsedParams.hasActiveSearch && activeUserId
       ? await fetchRankedPods({
-          activeUserId,
-          locationIds: requestedLocationIds,
-          month: searchPodMonth,
-        })
+        activeUserId,
+        locationIds: requestedLocationIds,
+        month: searchPodMonth,
+      })
       : []
 
   const rankingsByProperty = new Map(

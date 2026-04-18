@@ -1,10 +1,10 @@
 import { Sparkles } from 'lucide-react'
 
+import PropertyPreviewCard from '@/lib/properties/PropertyPreviewCard'
 import { Card, CardContent } from '@/components/ui/card'
 
 import SearchFilters from '../SearchFilters'
 import { type SearchPageData } from '../lib/types'
-import SearchPropertyCard from './PropertyPreviewCard'
 
 interface SearchResultsProps {
   data: SearchPageData
@@ -65,7 +65,7 @@ export default function SearchResults({ data }: SearchResultsProps) {
                 key={property.id}
                 className="transition-all duration-500 opacity-100 translate-y-0"
               >
-                <SearchPropertyCard
+                <PropertyPreviewCard
                   property={property}
                   isSignedIn={Boolean(data.activeUserId)}
                 />
