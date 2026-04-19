@@ -22,26 +22,28 @@ export default async function PropertyDetailPage(props: PropertyDetailPageProps)
   }
 
   return (
-    <div className="min-h-screen bg-white pt-24 pb-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="space-y-8">
-          <PropertyHero property={data.property} />
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-            <div className="space-y-8">
-              <PropertyDescription property={data.property} />
-              <PropertyAmenities property={data.property} />
-              <PodsOverview
-                availableMonths={data.availableMonths}
-                pods={data.pods}
-                selectedMonthValue={data.selectedMonthValue}
-              />
-            </div>
-            <BookingSidebar
-              propertyId={data.property.id}
-              pricePerRoom={data.property.pricePerRoom}
-              selectedPod={data.selectedPod}
+    <div className="min-h-screen bg-stone-50/50 pb-28">
+      <PropertyHero property={data.property} />
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 mt-10">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+          <div className="space-y-10">
+            <PropertyDescription property={data.property} />
+            <PropertyAmenities property={data.property} />
+            <PodsOverview
+              availableMonths={data.availableMonths}
+              pods={data.pods}
+              selectedMonthValue={data.selectedMonthValue}
+              minOccupancy={data.property.minOccupancy}
+              totalRooms={data.property.totalRooms}
+              isSignedIn={data.activeUserId !== null}
+              activeUserTags={data.activeUserContext?.tags ?? []}
             />
           </div>
+          <BookingSidebar
+            propertyId={data.property.id}
+            pricePerRoom={data.property.pricePerRoom}
+            selectedPod={data.selectedPod}
+          />
         </div>
       </div>
     </div>

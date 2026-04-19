@@ -25,6 +25,9 @@ export interface PropertyDetailMember {
   image: string | null
   age: number | null
   bio: string | null
+  job: string | null
+  city: string | null
+  country: string | null
   chronotype: string | null
   workStartHour: number | null
   workEndHour: number | null
@@ -63,6 +66,7 @@ export interface PropertyDetailData {
   pods: PropertyPodMonth[]
   availableMonths: PropertyAvailableMonth[]
   activeUserId: string | null
+  activeUserContext: ActiveUserContext | null
   selectedMonthValue: string | null
   selectedPod: PropertyPodMonth | null
   hasExplicitMonthSelection: boolean

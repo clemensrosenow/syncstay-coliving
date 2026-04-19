@@ -1,7 +1,6 @@
 import {
   Briefcase,
   Clock3,
-  LockKeyhole,
   Moon,
   PhoneCall,
   Sparkles,
@@ -9,6 +8,10 @@ import {
 } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item'
+import { Badge } from '@/components/ui/badge'
+import PropertyBookingProgress from '@/lib/properties/PropertyBookingProgress'
+import { getPodSummary } from '@/app/search/lib/utils'
 
 import {
   formatWorkHours,
@@ -19,204 +22,120 @@ import { type PropertyPodMonth } from '../lib/types'
 
 interface PodMonthCardProps {
   pod: PropertyPodMonth
+  minOccupancy: number
+  totalRooms: number
+  isSignedIn: boolean
+  activeUserTags: string[]
 }
 
-const conditionMap = {
-  EMPTY: {
-    label: 'Be first',
-  },
-  OPEN: {
-    label: 'Filling up',
-  },
-  LOCKED: {
-    label: 'Ready to book',
-  },
-  FULL: {
-    label: 'Full',
-  },
+const chronotypeIcon = {
+  EARLY_BIRD: SunMedium,
+  STANDARD: Clock3,
+  NIGHT_OWL: Moon,
 } as const
 
-const memberStatusMap = {
-  PENDING: {
-    label: 'Pending',
-    icon: Clock3,
-    className: 'bg-amber-100 text-amber-900',
-  },
-  CONFIRMED: {
-    label: 'Confirmed',
-    icon: LockKeyhole,
-    className: 'bg-emerald-100 text-emerald-800',
-  },
+const workStyleIcon = {
+  DEEP_FOCUS: Briefcase,
+  MIXED: Sparkles,
+  MOSTLY_CALLS: PhoneCall,
+  LIGHT: Clock3,
 } as const
 
-const chronotypeMap = {
-  EARLY_BIRD: {
-    icon: SunMedium,
-    className: 'bg-amber-50 text-amber-900',
-  },
-  STANDARD: {
-    icon: Clock3,
-    className: 'bg-sky-50 text-sky-800',
-  },
-  NIGHT_OWL: {
-    icon: Moon,
-    className: 'bg-indigo-50 text-indigo-800',
-  },
-} as const
-
-const workStyleMap = {
-  DEEP_FOCUS: {
-    icon: Briefcase,
-    className: 'bg-emerald-50 text-emerald-800',
-  },
-  MIXED: {
-    icon: Sparkles,
-    className: 'bg-violet-50 text-violet-800',
-  },
-  MOSTLY_CALLS: {
-    icon: PhoneCall,
-    className: 'bg-rose-50 text-rose-800',
-  },
-  LIGHT: {
-    icon: Clock3,
-    className: 'bg-cyan-50 text-cyan-800',
-  },
-} as const
-
-export default function PodMonthCard({ pod }: PodMonthCardProps) {
-  const condition = conditionMap[pod.condition]
-  const bookingOpenCopy =
-    pod.membersNeededToLock === 0
-      ? 'Booking is open'
-      : `${pod.membersNeededToLock} more ${
-          pod.membersNeededToLock === 1 ? 'member' : 'members'
-        } before booking opens`
-  const spotsLeftCopy =
-    pod.spotsLeft === 0
-      ? 'No spots left'
-      : `${pod.spotsLeft} ${pod.spotsLeft === 1 ? 'spot' : 'spots'} open`
+export default function PodMonthCard({ pod, minOccupancy, totalRooms, isSignedIn, activeUserTags }: PodMonthCardProps) {
+  const searchProperty = {
+    id: pod.podId,
+    name: '',
+    description: null,
+    photo: null,
+    minOccupancy,
+    totalRooms,
+    locationName: null,
+    bookingMonth: pod.monthValue,
+    podStatus: pod.status,
+    priceBase: 0,
+    matchScore: pod.matchScore,
+    podMembers: pod.members.map((m) => ({ name: m.name, score: 0, image: m.image })),
+    podSummary: getPodSummary(pod.memberCount, minOccupancy, pod.monthLabel, isSignedIn),
+    podMemberCount: pod.memberCount,
+    spotsLeft: pod.spotsLeft,
+  } as const
 
   return (
-    <article className="rounded-[1.75rem] border border-white/70 bg-white/90 p-6 shadow-[0_18px_55px_rgba(15,23,42,0.06)]">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <article className="rounded-2xl border border-stone-200 bg-white px-6 py-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-2xl font-semibold text-slate-950">{pod.monthLabel}</h3>
-          <p className="mt-1 text-sm text-slate-500">{pod.memberCount === 0
-              ? 'Ready for the first member'
-              : `${pod.memberCount} ${pod.memberCount === 1 ? 'member' : 'members'} so far`}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {pod.matchScore !== null ? (
-            <span className="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-sm font-medium text-sky-800">
-              <Sparkles size={14} />
-              {pod.matchScore}% match
-            </span>
-          ) : null}
-        </div>
+        {pod.matchScore !== null ? (
+          <Badge variant="secondary">{pod.matchScore}% match</Badge>
+        ) : null}
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl bg-slate-50 px-4 py-4">
-          <p className="text-sm font-medium text-slate-500">Status</p>
-          <p className="mt-1 text-base font-semibold text-slate-900">{condition.label}</p>
-        </div>
-        <div className="rounded-2xl bg-slate-50 px-4 py-4">
-          <p className="text-sm font-medium text-slate-500">Booking opens</p>
-          <p className="mt-1 text-base font-semibold text-slate-900">{bookingOpenCopy}</p>
-        </div>
-        <div className="rounded-2xl bg-slate-50 px-4 py-4">
-          <p className="text-sm font-medium text-slate-500">Spots open</p>
-          <p className="mt-1 text-base font-semibold text-slate-900">{spotsLeftCopy}</p>
-        </div>
-      </div>
+      <PropertyBookingProgress property={searchProperty} isSignedIn={isSignedIn} displayMode="text" />
 
-      <div className="mt-5 rounded-2xl border border-sky-100 bg-sky-50 p-5">
-        <p className="text-sm font-semibold text-sky-700">Pod Overview</p>
-        <p className="mt-2 text-base leading-7 text-slate-700">{pod.compatibilitySummary}</p>
-      </div>
+      <p className="text-muted-foreground line-clamp-3 text-sm leading-6 -mt-2 mb-4">
+        {pod.compatibilitySummary}
+      </p>
 
-      <div className="mt-5 space-y-3">
-        {pod.members.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-5 text-sm text-slate-500">
-            No members have joined this month yet.
-          </div>
-        ) : (
-          pod.members.map((member) => {
-            const bookingStatus = memberStatusMap[member.status]
-            const BookingStatusIcon = bookingStatus.icon
-            const chronotype = member.chronotype ? chronotypeMap[member.chronotype] : null
-            const ChronotypeIcon = chronotype?.icon
-            const workStyle = member.workStyle ? workStyleMap[member.workStyle] : null
-            const WorkStyleIcon = workStyle?.icon
+      {pod.members.length > 0 ? (
+        <div>
+          {pod.members.map((member, index) => {
+            const ChronotypeIcon = member.chronotype ? chronotypeIcon[member.chronotype as keyof typeof chronotypeIcon] : null
+            const WorkStyleIcon = member.workStyle ? workStyleIcon[member.workStyle as keyof typeof workStyleIcon] : null
             const workHours = formatWorkHours(member.workStartHour, member.workEndHour)
+            const locationParts = [member.city, member.country].filter(Boolean).join(', ')
+            const jobLocation = [member.job, locationParts ? `from ${locationParts}` : null].filter(Boolean).join(' ')
 
             return (
-              <div
-                key={`${pod.podId}-${member.userId}`}
-                className="rounded-2xl bg-slate-50 px-4 py-4"
-              >
-                <div className="flex items-start gap-4">
-                  <Avatar className="size-11 border border-slate-200">
-                    <AvatarImage src={member.image ?? undefined} alt={member.name} />
-                    <AvatarFallback className="bg-sky-100 font-semibold text-sky-700">
-                      {getMemberInitials(member.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-base font-semibold text-slate-900">{member.name}</p>
-                      {member.age ? (
-                        <span className="text-sm text-slate-500">{member.age}</span>
-                      ) : null}
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${bookingStatus.className}`}
-                      >
-                        <BookingStatusIcon size={12} />
-                        {bookingStatus.label}
-                      </span>
-                    </div>
-                    {member.bio ? (
-                      <p className="mt-1 text-sm leading-6 text-slate-600">{member.bio}</p>
-                    ) : null}
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {ChronotypeIcon && chronotype ? (
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${chronotype.className}`}
-                        >
-                          <ChronotypeIcon size={12} />
+              <>
+                {index > 0 ? <ItemSeparator key={`sep-${member.userId}`} /> : null}
+                <Item key={`${pod.podId}-${member.userId}`} className="!px-0 rounded-none items-start">
+                  <ItemMedia variant="image">
+                    <Avatar className="border border-stone-200 size-10">
+                      <AvatarImage src={member.image ?? undefined} alt={member.name} />
+                      <AvatarFallback className="bg-stone-100 font-semibold text-stone-600 text-sm">
+                        {getMemberInitials(member.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle className='items-baseline gap-2'>
+                      {member.name}
+                      <span className="text-xs font-normal text-stone-400">{member.age}</span>
+                    </ItemTitle>
+                    <ItemDescription>{jobLocation}</ItemDescription>
+                    <ItemDescription className="line-clamp-2 mt-1.5 text-xs">{member.bio}</ItemDescription>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {ChronotypeIcon ? (
+                        <Badge variant="outline">
+                          <ChronotypeIcon size={10} />
                           {formatPreferenceLabel(member.chronotype)}
-                        </span>
+                        </Badge>
                       ) : null}
                       {workHours ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">
-                          <Clock3 size={12} />
+                        <Badge variant="outline">
+                          <Clock3 size={10} />
                           {workHours}
-                        </span>
+                        </Badge>
                       ) : null}
-                      {WorkStyleIcon && workStyle ? (
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${workStyle.className}`}
-                        >
-                          <WorkStyleIcon size={12} />
+                      {WorkStyleIcon ? (
+                        <Badge variant="outline">
+                          <WorkStyleIcon size={10} />
                           {formatPreferenceLabel(member.workStyle)}
-                        </span>
+                        </Badge>
                       ) : null}
                       {member.tags.slice(0, 3).map((tag) => (
-                        <span
-                          key={`${member.userId}-${tag}`}
-                          className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600"
-                        >
-                          {tag}
-                        </span>
+                        <Badge key={`${member.userId}-${tag}`} variant={activeUserTags.includes(tag) ? 'secondary' : 'outline'}>{tag}</Badge>
                       ))}
                     </div>
-                  </div>
-                </div>
-              </div>
+                  </ItemContent>
+                </Item>
+              </>
             )
-          })
-        )}
-      </div>
+          })}
+        </div>
+      ) : null}
     </article>
   )
 }

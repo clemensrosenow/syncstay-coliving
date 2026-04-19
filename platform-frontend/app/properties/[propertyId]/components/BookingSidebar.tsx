@@ -29,29 +29,45 @@ export default function BookingSidebar({
   )
 
   return (
-    <aside className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] lg:sticky lg:top-20 space-y-5">
-        <h2 className="text-2xl font-semibold leading-tight text-slate-950">
+    <aside className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm lg:sticky lg:top-20">
+      {/* Header strip */}
+      <div className="bg-slate-950 px-6 py-5">
+        <h2 className="text-base font-semibold leading-snug text-white">
           {content.title}
         </h2>
-        <div className="space-y-3">
-          <div className="flex items-start justify-between gap-4 text-sm">
-            <span className="inline-flex items-center gap-2 text-slate-500">
-              <CalendarRange size={16} className="text-slate-400" />
+      </div>
+
+      <div className="p-6 space-y-5">
+        {/* Price */}
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-4xl font-bold text-slate-950">{pricePerRoom}</span>
+          <span className="text-xl font-medium text-stone-400">€</span>
+          <span className="text-sm text-stone-400 ml-0.5">/ month</span>
+        </div>
+
+        {/* Details */}
+        <div className="space-y-3 border-y border-stone-100 py-4">
+          <div className="flex items-center justify-between gap-4 text-sm">
+            <span className="inline-flex items-center gap-2 text-stone-500">
+              <CalendarRange size={14} className="text-stone-400" />
               Month
             </span>
             <span className="text-right font-medium text-slate-900">
               {selectedPod ? selectedPod.monthLabel : 'Select a month'}
             </span>
           </div>
-          <div className="flex items-start justify-between gap-4 text-sm">
-            <span className="inline-flex items-center gap-2 text-slate-500">
-              <ShieldCheck size={16} className="text-slate-400" />
-              Price
+          <div className="flex items-center justify-between gap-4 text-sm">
+            <span className="inline-flex items-center gap-2 text-stone-500">
+              <ShieldCheck size={14} className="text-stone-400" />
+              Secure booking
             </span>
-            <span className="font-semibold text-slate-950">{pricePerRoom} €</span>
+            <span className="text-right text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+              Protected
+            </span>
           </div>
         </div>
 
+        {/* CTA */}
         <div className="space-y-2">
           {content.disabled || !selectedPod ? (
             <Button size="lg" className="w-full" disabled>
@@ -61,12 +77,13 @@ export default function BookingSidebar({
             <Button asChild size="lg" className="w-full">
               <Link href={`/checkout?propertyId=${propertyId}&month=${selectedPod.monthValue}`}>
                 {content.buttonLabel}
-                <ArrowRight size={18} />
+                <ArrowRight size={16} />
               </Link>
             </Button>
           )}
-          <p className="text-center text-xs text-slate-500">{content.body}</p>
+          <p className="text-center text-xs text-stone-400">{content.body}</p>
         </div>
+      </div>
     </aside>
   )
 }

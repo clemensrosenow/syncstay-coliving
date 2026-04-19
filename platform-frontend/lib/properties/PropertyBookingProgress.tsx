@@ -17,11 +17,13 @@ import { getMemberInitials, getPodStateDetails } from '@/app/search/lib/utils'
 interface PropertyBookingProgressProps {
   property: SearchProperty
   isSignedIn: boolean
+  displayMode?: 'avatars' | 'text'
 }
 
 export default function PropertyBookingProgress({
   property,
   isSignedIn,
+  displayMode = 'avatars',
 }: PropertyBookingProgressProps) {
   const podState = getPodStateDetails({
     isSignedIn,
@@ -47,9 +49,11 @@ export default function PropertyBookingProgress({
         <ItemTitle>
           {podState.meta}
         </ItemTitle>
-        <ItemDescription className="line-clamp-2">
-          {property.podSummary}
-        </ItemDescription>
+        {property.podSummary ? (
+          <ItemDescription className="line-clamp-2">
+            {property.podSummary}
+          </ItemDescription>
+        ) : null}
 
 
 
@@ -74,7 +78,9 @@ export default function PropertyBookingProgress({
 
         <div className="flex items-center justify-between gap-4 text-xs mt-2">
           <div className="flex items-center gap-2">
-            {showMemberAvatars ? (
+            {displayMode === 'text' ? (
+              <span className="text-muted-foreground">{podState.title}</span>
+            ) : showMemberAvatars ? (
               <>
                 <AvatarGroup className="-space-x-1.5 *:data-[slot=avatar]:ring-border">
                   {visibleMembers.map((member) => (
