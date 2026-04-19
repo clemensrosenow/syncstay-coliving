@@ -1,4 +1,8 @@
+import { Suspense } from 'react'
+
+import { Skeleton } from '@/components/ui/skeleton'
 import { getSearchPageData } from '@/app/search/lib/data'
+import SearchUI from '@/app/search/SearchUI'
 import { parseSearchParams } from '@/app/search/lib/utils'
 import PropertyPreviewCard from '@/lib/properties/PropertyPreviewCard'
 
@@ -21,6 +25,15 @@ export default async function Home() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <section className="mb-10">
+        <Suspense fallback={<Skeleton className="mx-auto h-48 w-full max-w-5xl rounded-3xl" />}>
+          <SearchUI
+            availableLocations={data.availableLocations}
+            availableMonths={data.availableMonths}
+          />
+        </Suspense>
+      </section>
+
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {data.properties.map((property) => (
           <PropertyPreviewCard
