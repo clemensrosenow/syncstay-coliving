@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, MapPin, Sparkles, UserPlus } from 'lucide-react'
+import { MapPin, Sparkles, UserPlus } from 'lucide-react'
 
 import {
   Avatar,
@@ -132,9 +132,6 @@ export default function PropertyPreviewCard({
 
           <div className="mt-auto flex items-end justify-between pt-4 text-sm font-medium">
             <span className="text-base font-semibold">{property.priceBase} EUR/mo</span>
-            <span className="text-primary flex items-center gap-1 transition-all group-hover:px-1">
-              {property.ctaLabel} <ArrowRight size={14} />
-            </span>
           </div>
         </CardContent>
       </Card>

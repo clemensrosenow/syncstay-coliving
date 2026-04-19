@@ -86,7 +86,6 @@ export interface SearchProperty {
   podSummary: string
   podMemberCount: number
   spotsLeft: number
-  ctaLabel: string
 }
 
 export interface SearchPageData {

@@ -14,7 +14,7 @@ export default function PropertyHero({ property }: PropertyHeroProps) {
       <div className="space-y-4">
         <BackButton />
         <div className="space-y-2">
-          <h1 className="font-heading text-4xl leading-tight text-slate-950 sm:text-5xl">
+          <h1 className="font-heading text-3xl font-medium leading-tight text-slate-950 sm:text-4xl">
             {property.name}
           </h1>
           <p className="text-base text-slate-600">

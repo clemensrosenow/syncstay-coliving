@@ -119,7 +119,6 @@ function buildSearchProperties(input: {
       ),
       podMemberCount,
       spotsLeft,
-      ctaLabel: 'View Property',
     }
   })
 

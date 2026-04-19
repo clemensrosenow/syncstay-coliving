@@ -29,7 +29,7 @@ export default function BookingSidebar({
   )
 
   return (
-    <aside className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] lg:sticky lg:top-28 space-y-5">
+    <aside className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] lg:sticky lg:top-20 space-y-5">
         <h2 className="text-2xl font-semibold leading-tight text-slate-950">
           {content.title}
         </h2>
