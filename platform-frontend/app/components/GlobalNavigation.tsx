@@ -1,7 +1,8 @@
-import Link from "next/link";
-import { headers } from "next/headers";
+"use client";
 
-import { auth } from "@/lib/auth";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -31,11 +32,21 @@ function getInitials(name?: string | null) {
     .join("");
 }
 
-export async function GlobalNavigation() {
-  const session = await auth.api.getSession({
-    headers: new Headers(await headers()),
-  });
-  const isSignedIn = Boolean(session?.user?.id);
+type GlobalNavigationProps = {
+  isSignedIn: boolean;
+  userImage?: string | null;
+  userName?: string | null;
+};
+
+export function GlobalNavigation({
+  isSignedIn,
+  userImage,
+  userName,
+}: GlobalNavigationProps) {
+  const pathname = usePathname();
+  const showMarketingLinks = pathname === "/";
+  const showAuthCtas =
+    pathname !== "/auth/sign-in" && pathname !== "/auth/sign-up";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b bg-background">
@@ -47,55 +58,54 @@ export async function GlobalNavigation() {
         {isSignedIn ? (
           <Link href="/account" aria-label="Open account">
             <Avatar>
-              <AvatarImage
-                src={session?.user.image ?? undefined}
-                alt={session?.user.name ?? "User profile"}
-              />
-              <AvatarFallback>
-                {getInitials(session?.user.name)}
-              </AvatarFallback>
+              <AvatarImage src={userImage ?? undefined} alt={userName ?? "User profile"} />
+              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
             </Avatar>
           </Link>
         ) : (
           <>
-            <NavigationMenu
-              viewport={false}
-              className="order-last basis-full justify-center md:order-none md:basis-auto"
-            >
-              <NavigationMenuList>
-                {marketingLinks.map((link) => (
-                  <NavigationMenuItem key={link.href}>
+            {showMarketingLinks ? (
+              <NavigationMenu
+                viewport={false}
+                className="order-last basis-full justify-center md:order-none md:basis-auto"
+              >
+                <NavigationMenuList>
+                  {marketingLinks.map((link) => (
+                    <NavigationMenuItem key={link.href}>
+                      <NavigationMenuLink asChild>
+                        <Link href={link.href} className={navigationMenuTriggerStyle()}>
+                          {link.label}
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+            ) : null}
+
+            {showAuthCtas ? (
+              <NavigationMenu viewport={false}>
+                <NavigationMenuList className="gap-2">
+                  <NavigationMenuItem>
                     <NavigationMenuLink asChild>
-                      <Link href={link.href} className={navigationMenuTriggerStyle()}>
-                        {link.label}
+                      <Link
+                        href="/auth/sign-in"
+                        className={buttonVariants({ variant: "ghost" })}
+                      >
+                        Sign In
                       </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
-
-            <NavigationMenu viewport={false}>
-              <NavigationMenuList className="gap-2">
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href="/auth/sign-in"
-                      className={buttonVariants({ variant: "ghost" })}
-                    >
-                      Sign In
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link href="/auth/sign-up" className={buttonVariants()}>
-                      Sign Up
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link href="/auth/sign-up" className={buttonVariants()}>
+                        Sign Up
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            ) : null}
           </>
         )}
       </nav>

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { cn } from "@/lib/utils";
+import { auth } from "@/lib/auth";
 import { GlobalNavigation } from "./components/GlobalNavigation";
 
 const geistHeading = Geist({subsets:['latin'],variable:'--font-heading'});
@@ -24,11 +26,15 @@ export const metadata: Metadata = {
   description: "Find and book co-living spaces that sync with your lifestyle.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth.api.getSession({
+    headers: new Headers(await headers()),
+  });
+
   return (
     <html
       lang="en"
@@ -36,7 +42,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Providers>
-          <GlobalNavigation />
+          <GlobalNavigation
+            isSignedIn={Boolean(session?.user?.id)}
+            userImage={session?.user.image}
+            userName={session?.user.name}
+          />
           <main className="pt-16">
             {children}
           </main>
