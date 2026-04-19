@@ -159,8 +159,8 @@ export function getPodSummary(
   }
 
   const needed = Math.max(0, minOccupancy - memberCount)
-  if (needed > 0) {
-    return needed === 1 ? 'Secure your spot now.' : `${needed} more travelers and it's on.`
+  if (needed > 1) {
+    return 'Secure your spot now.'
   }
 
   return 'Get a guaranteed spot.'
