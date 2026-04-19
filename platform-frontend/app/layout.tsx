@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { cn } from "@/lib/utils";
+import { GlobalNavigation } from "./components/GlobalNavigation";
 
 const geistHeading = Geist({subsets:['latin'],variable:'--font-heading'});
 
@@ -34,7 +35,10 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable, geistHeading.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers>
+          <GlobalNavigation />
+          {children}
+        </Providers>
       </body>
     </html>
   );
