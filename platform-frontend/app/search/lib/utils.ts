@@ -124,7 +124,7 @@ export function getPodStateDetails({
     return {
       icon: UserPlus,
       title: 'Be the first member',
-      meta: `${spotsLeft} ${spotsLeft === 1 ? 'spot' : 'spots'} open`,
+      meta: 'Still free',
     }
   }
 
@@ -140,7 +140,7 @@ export function getPodStateDetails({
   return {
     icon: Clock3,
     title: `${memberCount} ${memberCount === 1 ? 'member' : 'members'} joined`,
-    meta: needed === 1 ? 'Almost unlocked' : `${needed} more to unlock`,
+    meta: needed === 1 ? 'Almost unlocked' : 'On the rise',
   }
 }
 
@@ -160,10 +160,10 @@ export function getPodSummary(
 
   const needed = Math.max(0, minOccupancy - memberCount)
   if (needed > 0) {
-    return needed === 1 ? 'One more and it is on.' : `${needed} more to go.`
+    return needed === 1 ? 'Secure your spot now.' : `${needed} more travelers and it's on.`
   }
 
-  return 'Ready when you are.'
+  return 'Get a guaranteed spot.'
 }
 
 export function isInstantlyBookableOrOneAway({

@@ -18,6 +18,7 @@ export interface AvailableMonth {
 export interface PodRankingMember {
   name: string
   score: number
+  image: string | null
 }
 
 export interface PodRanking {
