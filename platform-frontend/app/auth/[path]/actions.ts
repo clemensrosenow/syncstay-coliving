@@ -1,44 +1,51 @@
-import { NextResponse } from "next/server";
+"use server";
+
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { makeSignature } from "better-auth/crypto";
+
 import { auth } from "@/lib/auth";
 
-const CYBERSECURITY_CONSULTANT_USER_ID =
-  "0620c74e-1f5e-49df-84f6-658288cd7443";
+export type PrototypeLoginState = {
+  error: string | null;
+};
 
-export async function POST() {
+export async function prototypeLoginAction(
+  _prevState: PrototypeLoginState,
+  formData: FormData,
+): Promise<PrototypeLoginState> {
+  const userId = formData.get("userId");
+
+  if (typeof userId !== "string" || userId.length === 0) {
+    return { error: "Select a prototype user first." };
+  }
+
   const authContext = await auth.$context;
-  const user = await authContext.internalAdapter.findUserById(
-    CYBERSECURITY_CONSULTANT_USER_ID,
-  );
+  const user = await authContext.internalAdapter.findUserById(userId);
 
   if (!user) {
-    return NextResponse.json(
-      { error: "Prototype user not found." },
-      { status: 404 },
-    );
+    return { error: "Prototype user not found." };
   }
 
   const session = await authContext.internalAdapter.createSession(user.id);
 
   if (!session) {
-    return NextResponse.json(
-      { error: "Prototype session could not be created." },
-      { status: 500 },
-    );
+    return { error: "Prototype session could not be created." };
   }
 
   const signedSessionToken = `${session.token}.${await makeSignature(
     session.token,
     authContext.secret,
   )}`;
-  const response = NextResponse.json({ redirectTo: "/search" });
   const sessionCookie = authContext.authCookies.sessionToken;
   const sameSite =
     typeof sessionCookie.attributes.sameSite === "string"
       ? sessionCookie.attributes.sameSite.toLowerCase()
       : sessionCookie.attributes.sameSite;
 
-  response.cookies.set({
+  const cookieStore = await cookies();
+
+  cookieStore.set({
     name: sessionCookie.name,
     value: signedSessionToken,
     domain: sessionCookie.attributes.domain,
@@ -49,5 +56,5 @@ export async function POST() {
     secure: sessionCookie.attributes.secure,
   });
 
-  return response;
+  redirect("/search");
 }
