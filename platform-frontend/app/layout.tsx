@@ -37,7 +37,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Providers>
           <GlobalNavigation />
-          {children}
+          <main className="pt-16">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

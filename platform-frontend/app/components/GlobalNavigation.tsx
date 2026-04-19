@@ -38,7 +38,7 @@ export async function GlobalNavigation() {
   const isSignedIn = Boolean(session?.user?.id);
 
   return (
-    <header className="border-b">
+    <header className="fixed inset-x-0 top-0 z-50 border-b bg-background">
       <nav className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/" className="shrink-0 font-semibold">
           SyncStay
