@@ -44,6 +44,7 @@ export default async function RootLayout({
         <Providers>
           <GlobalNavigation
             isSignedIn={Boolean(session?.user?.id)}
+            userId={session?.user?.id}
             userImage={session?.user.image}
             userName={session?.user.name}
           />

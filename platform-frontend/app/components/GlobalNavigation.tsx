@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -12,6 +11,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { UserProfileMenu } from "@/app/components/UserProfileMenu";
 
 const marketingLinks = [
   { href: "/#about-us", label: "About Us" },
@@ -19,27 +19,16 @@ const marketingLinks = [
   { href: "/#pricing", label: "Pricing" },
 ];
 
-function getInitials(name?: string | null) {
-  if (!name) {
-    return "SS";
-  }
-
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
 type GlobalNavigationProps = {
   isSignedIn: boolean;
+  userId?: string | null;
   userImage?: string | null;
   userName?: string | null;
 };
 
 export function GlobalNavigation({
   isSignedIn,
+  userId,
   userImage,
   userName,
 }: GlobalNavigationProps) {
@@ -55,19 +44,18 @@ export function GlobalNavigation({
           SyncStay
         </Link>
 
-        {isSignedIn ? (
-          <Link href="/account" aria-label="Open account">
-            <Avatar>
-              <AvatarImage src={userImage ?? undefined} alt={userName ?? "User profile"} />
-              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
-            </Avatar>
-          </Link>
+        {isSignedIn && userId ? (
+          <UserProfileMenu
+            userId={userId}
+            userImage={userImage}
+            userName={userName}
+          />
         ) : (
           <>
             {showMarketingLinks ? (
               <NavigationMenu
                 viewport={false}
-                className="order-last basis-full justify-center md:order-none md:basis-auto"
+                className="basis-full justify-center md:basis-auto"
               >
                 <NavigationMenuList>
                   {marketingLinks.map((link) => (
