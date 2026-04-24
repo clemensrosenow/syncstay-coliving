@@ -16,6 +16,9 @@ export type PublicProfileData = {
   profile: {
     id: string | null
     bio: string | null
+    job: string | null
+    city: string | null
+    country: string | null
     birthday: string | null
     chronotype: string | null
     workStartHour: number | null
@@ -54,6 +57,9 @@ export async function getPublicProfileData(userId: string): Promise<PublicProfil
       userUpdatedAt: users.updatedAt,
       profileId: userProfiles.id,
       bio: userProfiles.bio,
+      job: userProfiles.job,
+      city: userProfiles.city,
+      country: userProfiles.country,
       birthday: userProfiles.birthday,
       chronotype: userProfiles.chronotype,
       workStartHour: userProfiles.workStartHour,
@@ -116,6 +122,9 @@ export async function getPublicProfileData(userId: string): Promise<PublicProfil
     profile: {
       id: userRow.profileId,
       bio: userRow.bio,
+      job: userRow.job,
+      city: userRow.city,
+      country: userRow.country,
       birthday: userRow.birthday,
       chronotype: userRow.chronotype,
       workStartHour: userRow.workStartHour,

@@ -1,7 +1,14 @@
 import Link from "next/link"
 import { type Metadata } from "next"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
+
 import { getPublicProfileData } from "./lib/data"
+import { TagBadge } from "@/components/tag-icon"
 
 export const dynamic = "force-dynamic"
 
@@ -18,7 +25,6 @@ function formatDate(value: Date | string | null) {
 
   return new Intl.DateTimeFormat("en-US", {
     month: "long",
-    day: "numeric",
     year: "numeric",
     timeZone: "UTC",
   }).format(date)
@@ -52,23 +58,20 @@ function formatEnumLabel(value: string | null) {
     .join(" ")
 }
 
-function formatLikert(value: number | null) {
-  return value === null ? "Not provided" : `${value} / 5`
+function calculateAge(birthday: string | null): number | null {
+  if (!birthday) return null
+  const birth = new Date(`${birthday}T00:00:00.000Z`)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
 }
 
-function Stat({
-  label,
-  value,
-}: {
-  label: string
-  value: string
-}) {
-  return (
-    <div className="rounded-2xl bg-gray-50 p-4">
-      <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-400">{label}</p>
-      <p className="mt-2 text-base font-medium text-gray-900">{value}</p>
-    </div>
-  )
+function memberStatusVariant(status: "PENDING" | "CONFIRMED" | "WITHDRAWN") {
+  if (status === "CONFIRMED") return "default" as const
+  if (status === "PENDING") return "secondary" as const
+  return "outline" as const
 }
 
 export async function generateMetadata(props: PublicProfilePageProps): Promise<Metadata> {
@@ -85,128 +88,168 @@ export default async function PublicProfilePage(props: PublicProfilePageProps) {
   const { userId } = await props.params
   const data = await getPublicProfileData(userId)
 
-  return (
-    <main className="min-h-screen bg-gray-50 pt-24 pb-24">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <section className="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-gray-200">
-          <div className="bg-gray-900 px-6 py-10 text-white md:px-8">
-            <p className="text-sm font-medium uppercase tracking-[0.3em] text-white/60">
-              Public traveler profile
-            </p>
-            <div className="mt-5 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10 text-2xl font-semibold">
-                  {data.user.name.slice(0, 1).toUpperCase()}
-                </div>
-                <div>
-                  <h1 className="text-4xl font-semibold tracking-tight">{data.user.name}</h1>
-                  <p className="mt-2 text-sm text-white/70">
-                    Member since {formatDate(data.user.createdAt)}
-                  </p>
-                </div>
-              </div>
+  const age = calculateAge(data.profile.birthday)
 
-              <Link
-                href="/search"
-                className="inline-flex rounded-full bg-white px-5 py-3 text-sm font-medium text-gray-900 hover:bg-gray-100"
-              >
-                Explore SyncStay homes
-              </Link>
+  return (
+    <main className="min-h-screen bg-white pb-32">
+      <div className="mx-auto max-w-3xl px-6 sm:px-8">
+        <header className="pt-12">
+          <div className="flex items-center gap-6">
+            <Avatar className="size-[72px] shrink-0">
+              <AvatarImage src={data.user.image ?? undefined} alt={data.user.name} />
+              <AvatarFallback className="text-2xl font-semibold">
+                {data.user.name.slice(0, 1).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
+            <div>
+              <h1 className="font-[family-name:var(--font-heading)] text-4xl font-semibold tracking-tight text-foreground leading-none">
+                {data.user.name}
+              </h1>
+              {(data.profile.job || data.profile.city || data.profile.country) && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {[
+                    data.profile.job,
+                    [data.profile.city, data.profile.country].filter(Boolean).join(", "),
+                    age !== null ? `${age} years old` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="grid gap-8 px-6 py-8 md:px-8">
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900">Profile overview</h2>
-              <p className="mt-3 text-gray-600">
-                {data.profile.bio ?? "This traveler has not added a public bio yet."}
-              </p>
-            </section>
+          <p className="mt-6 text-base text-muted-foreground leading-relaxed">
+            {data.profile.bio ?? "This traveler has not added a public bio yet."}
+          </p>
+        </header>
 
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900">Lifestyle fit</h2>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <Stat label="Birthday" value={formatDate(data.profile.birthday)} />
-                <Stat label="Chronotype" value={formatEnumLabel(data.profile.chronotype)} />
-                <Stat label="Work style" value={formatEnumLabel(data.profile.workStyle)} />
-                <Stat
-                  label="Work hours"
-                  value={`${formatHour(data.profile.workStartHour)} to ${formatHour(data.profile.workEndHour)}`}
-                />
-                <Stat label="Cleanliness" value={formatLikert(data.profile.cleanliness)} />
-                <Stat label="Social energy" value={formatLikert(data.profile.socialEnergy)} />
-                <Stat label="Budget tier" value={formatEnumLabel(data.profile.budgetTier)} />
-              </div>
-            </section>
+        {data.tags.length > 0 && (
+          <section className="mt-7 flex flex-wrap gap-2">
+            {data.tags.map((tag) => (
+              <TagBadge
+                key={tag}
+                tag={tag}
+                variant="outline"
+                className="rounded-full px-3 py-1 text-sm font-normal gap-1.5"
+              />
+            ))}
+          </section>
+        )}
 
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900">Interests</h2>
-              {data.tags.length === 0 ? (
-                <p className="mt-3 text-gray-600">No interest tags available.</p>
-              ) : (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {data.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+        <Separator className="mt-10"/>
+
+        <section className="py-10">
+          <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold text-foreground">
+            Lifestyle
+          </h2>
+
+          {(data.profile.cleanliness !== null || data.profile.socialEnergy !== null) && (
+            <div className="mt-6 space-y-5">
+              {data.profile.cleanliness !== null && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-muted-foreground">Cleanliness</p>
+                    <p className="text-sm font-medium tabular-nums text-foreground">
+                      {data.profile.cleanliness} / 5
+                    </p>
+                  </div>
+                  <Progress value={(data.profile.cleanliness / 5) * 100} />
                 </div>
               )}
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900">Booking history</h2>
-              {data.bookings.length === 0 ? (
-                <p className="mt-3 text-gray-600">No pod activity has been recorded for this traveler yet.</p>
-              ) : (
-                <div className="mt-4 space-y-4">
-                  {data.bookings.map((booking) => (
-                    <article
-                      key={`${booking.podId}-${booking.joinedAt.toISOString()}`}
-                      className="rounded-3xl border border-gray-200 bg-gray-50 p-5"
-                    >
-                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <h3 className="text-xl font-semibold text-gray-900">
-                            {booking.propertyName}
-                          </h3>
-                          <p className="mt-1 text-sm text-gray-600">
-                            {booking.locationName}, {booking.locationCountry} · {formatMonth(booking.month)}
-                          </p>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 text-xs font-medium uppercase tracking-[0.2em]">
-                          <span className="rounded-full bg-white px-3 py-2 text-gray-600 ring-1 ring-gray-200">
-                            Member {booking.status}
-                          </span>
-                          <span className="rounded-full bg-white px-3 py-2 text-gray-600 ring-1 ring-gray-200">
-                            Pod {booking.podStatus}
-                          </span>
-                        </div>
-                      </div>
-
-                      <p className="mt-4 text-sm text-gray-600">
-                        Joined this pod on {formatDate(booking.joinedAt)}.
-                      </p>
-                    </article>
-                  ))}
+              {data.profile.socialEnergy !== null && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-muted-foreground">Social energy</p>
+                    <p className="text-sm font-medium tabular-nums text-foreground">
+                      {data.profile.socialEnergy} / 5
+                    </p>
+                  </div>
+                  <Progress value={(data.profile.socialEnergy / 5) * 100} />
                 </div>
               )}
-            </section>
+            </div>
+          )}
 
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900">Profile metadata</h2>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Stat label="User ID" value={data.user.id} />
-                <Stat label="Profile ID" value={data.profile.id ?? "No profile row"} />
-                <Stat label="Profile created" value={formatDate(data.profile.createdAt)} />
-                <Stat label="Profile updated" value={formatDate(data.profile.updatedAt)} />
+          <dl className="mt-6 divide-y divide-border">
+            {(data.profile.chronotype || data.profile.workStartHour !== null) && (
+              <div className="flex items-baseline justify-between gap-8 py-3">
+                <dt className="text-sm text-muted-foreground shrink-0">Daily rhythm</dt>
+                <dd className="text-sm font-medium text-foreground text-right">
+                  {[
+                    formatEnumLabel(data.profile.chronotype),
+                    data.profile.workStartHour !== null
+                      ? `${formatHour(data.profile.workStartHour)} – ${formatHour(data.profile.workEndHour)}`
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </dd>
               </div>
-            </section>
-          </div>
+            )}
+            {data.profile.workStyle && (
+              <div className="flex items-baseline justify-between gap-8 py-3">
+                <dt className="text-sm text-muted-foreground shrink-0">Work style</dt>
+                <dd className="text-sm font-medium text-foreground text-right">
+                  {formatEnumLabel(data.profile.workStyle)}
+                </dd>
+              </div>
+            )}
+            {data.profile.budgetTier && (
+              <div className="flex items-baseline justify-between gap-8 py-3">
+                <dt className="text-sm text-muted-foreground shrink-0">Budget tier</dt>
+                <dd className="text-sm font-medium text-foreground text-right">
+                  {formatEnumLabel(data.profile.budgetTier)}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </section>
+
+
+
+        <Separator />
+
+        <section className="py-10">
+          <h2 className="font-[family-name:var(--font-heading)] text-xl font-semibold text-foreground">
+            Booking history
+          </h2>
+          {data.bookings.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              No pod activity has been recorded for this traveler yet.
+            </p>
+          ) : (
+            <ol className="mt-6 divide-y divide-border">
+              {data.bookings.map((booking) => (
+                <li
+                  key={`${booking.podId}-${booking.joinedAt.toISOString()}`}
+                  className="py-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-semibold text-foreground">
+                      {booking.propertyName}
+                    </p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      {booking.locationName}, {booking.locationCountry}
+                      <span className="mx-2">·</span>
+                      {formatMonth(booking.month)}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Joined {formatDate(booking.joinedAt)}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant={memberStatusVariant(booking.status)}>
+                      Member {booking.status.toLowerCase()}
+                    </Badge>
+                    <Badge variant="outline">Pod {booking.podStatus.toLowerCase()}</Badge>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
         </section>
       </div>
     </main>
