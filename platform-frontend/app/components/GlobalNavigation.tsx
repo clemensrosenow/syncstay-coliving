@@ -2,8 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogInIcon, MenuIcon, UserRoundPlusIcon } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -36,6 +46,7 @@ export function GlobalNavigation({
   const showMarketingLinks = pathname === "/";
   const showAuthCtas =
     pathname !== "/auth/sign-in" && pathname !== "/auth/sign-up";
+  const showMobileGuestMenu = !isSignedIn && (showMarketingLinks || showAuthCtas);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b bg-background">
@@ -55,7 +66,7 @@ export function GlobalNavigation({
             {showMarketingLinks ? (
               <NavigationMenu
                 viewport={false}
-                className="basis-full justify-center md:basis-auto"
+                className="hidden basis-full justify-center md:flex md:basis-auto"
               >
                 <NavigationMenuList>
                   {marketingLinks.map((link) => (
@@ -72,7 +83,7 @@ export function GlobalNavigation({
             ) : null}
 
             {showAuthCtas ? (
-              <NavigationMenu viewport={false}>
+              <NavigationMenu viewport={false} className="hidden md:flex">
                 <NavigationMenuList className="gap-2">
                   <NavigationMenuItem>
                     <NavigationMenuLink asChild>
@@ -93,6 +104,59 @@ export function GlobalNavigation({
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
+            ) : null}
+
+            {showMobileGuestMenu ? (
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="md:hidden"
+                    aria-label="Open navigation menu"
+                  >
+                    <MenuIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 md:hidden" align="end">
+                  {showMarketingLinks ? (
+                    <>
+                      <DropdownMenuLabel>Explore</DropdownMenuLabel>
+                      <DropdownMenuGroup>
+                        {marketingLinks.map((link) => (
+                          <DropdownMenuItem key={link.href} asChild>
+                            <Link href={link.href}>{link.label}</Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuGroup>
+                    </>
+                  ) : null}
+
+                  {showMarketingLinks && showAuthCtas ? (
+                    <DropdownMenuSeparator />
+                  ) : null}
+
+                  {showAuthCtas ? (
+                    <>
+                      <DropdownMenuLabel>Get Started</DropdownMenuLabel>
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                          <Link href="/auth/sign-in">
+                            <LogInIcon />
+                            Sign In
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/auth/sign-up">
+                            <UserRoundPlusIcon />
+                            Sign Up
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </>
+                  ) : null}
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : null}
           </>
         )}
