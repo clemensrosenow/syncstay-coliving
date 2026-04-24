@@ -1,10 +1,17 @@
 import { Suspense } from 'react'
 
-import { Skeleton } from '@/components/ui/skeleton'
 import { getSearchPageData } from '@/app/search/lib/data'
-import SearchUI from '@/app/search/SearchUI'
 import { parseSearchParams } from '@/app/search/lib/utils'
-import PropertyPreviewCard from '@/lib/properties/PropertyPreviewCard'
+
+import { HeroSection } from '@/components/landing/HeroSection'
+import { StatsBar } from '@/components/landing/StatsBar'
+import { FeaturedProperties } from '@/components/landing/FeaturedProperties'
+import { FeaturesSection } from '@/components/landing/FeaturesSection'
+import { HowItWorksSection } from '@/components/landing/HowItWorksSection'
+import { TestimonialsSection } from '@/components/landing/TestimonialsSection'
+import { PricingSection } from '@/components/landing/PricingSection'
+import { TeamSection } from '@/components/landing/TeamSection'
+import { CTASection } from '@/components/landing/CTASection'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,25 +31,24 @@ export default async function Home() {
   )
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="mb-10">
-        <Suspense fallback={<Skeleton className="mx-auto h-48 w-full max-w-5xl rounded-3xl" />}>
-          <SearchUI
-            availableLocations={data.availableLocations}
-            availableMonths={data.availableMonths}
-          />
-        </Suspense>
-      </section>
-
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {data.properties.map((property) => (
-          <PropertyPreviewCard
-            key={property.id}
-            property={property}
-            isSignedIn={Boolean(data.activeUserId)}
-          />
-        ))}
-      </div>
+    <main className="flex min-h-screen flex-col">
+      <Suspense fallback={<div className="h-screen" />}>
+        <HeroSection
+          availableLocations={data.availableLocations}
+          availableMonths={data.availableMonths}
+        />
+      </Suspense>
+      <StatsBar />
+      <FeaturedProperties
+        properties={data.properties}
+        isSignedIn={Boolean(data.activeUserId)}
+      />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <TestimonialsSection />
+      <PricingSection />
+      <TeamSection />
+      <CTASection />
     </main>
   )
 }

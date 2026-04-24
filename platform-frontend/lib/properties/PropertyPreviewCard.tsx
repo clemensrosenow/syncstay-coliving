@@ -59,7 +59,7 @@ export default function PropertyPreviewCard({
               'Thoughtfully designed for long stays, meaningful routines, and a pod that feels easy to join.'}
           </p>
 
-          <PropertyBookingProgress property={property} isSignedIn={isSignedIn} />
+          {isSignedIn && <PropertyBookingProgress property={property} isSignedIn={isSignedIn} />}
 
           <div className="mt-auto flex items-end justify-between pt-4 text-sm font-medium">
             <span className="text-base font-semibold">{property.priceBase} EUR/mo</span>
