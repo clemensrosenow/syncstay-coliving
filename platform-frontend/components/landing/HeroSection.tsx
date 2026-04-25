@@ -41,9 +41,9 @@ export function HeroSection({
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
         {/* Two-column hero */}
-        <div className="grid lg:grid-cols-[55%_45%] gap-12 items-center mb-12">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-12">
           {/* Left: Text content */}
-          <div>
+          <div className="lg:col-span-7 xl:col-span-8 w-full">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -62,10 +62,10 @@ export function HeroSection({
               transition={{ duration: 0.7, delay: 0.1 }}
               className="font-bold text-5xl sm:text-6xl lg:text-7xl text-foreground leading-[1.05] mb-6 tracking-tight"
             >
-              Wo arbeitest du
+              Co-Living für
               <br />
               <span className="relative inline-block">
-                <span className="relative z-10 text-primary">als nächstes?</span>
+                <span className="relative z-10 text-primary">Digitale Nomaden</span>
                 <motion.span
                   className="absolute -bottom-1 left-0 right-0 h-3 bg-secondary -z-[1] opacity-40 rounded"
                   initial={{ scaleX: 0, originX: 0 }}
@@ -85,18 +85,17 @@ export function HeroSection({
               SharedStay-Preisoptimierung – alles in einer Plattform.
             </motion.p>
 
+            {/* Search bar */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap gap-3"
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="mb-8 w-full"
             >
-              <Button size="lg" className="text-base px-8 py-6 rounded-xl shadow-md" asChild>
-                <Link href="/search">Trip planen</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="text-base px-8 py-6 rounded-xl" asChild>
-                <Link href="#community">Community erkunden</Link>
-              </Button>
+              <SearchUI
+                availableLocations={availableLocations}
+                availableMonths={availableMonths}
+              />
             </motion.div>
           </div>
 
@@ -105,7 +104,7 @@ export function HeroSection({
             initial={{ opacity: 0, x: 32 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative hidden lg:flex items-end justify-center h-[460px]"
+            className="relative hidden lg:flex items-end justify-center h-[460px] lg:col-span-5 xl:col-span-4"
           >
             {/* Main hero image */}
             <motion.div
@@ -177,62 +176,6 @@ export function HeroSection({
             </motion.div>
           </motion.div>
         </div>
-
-        {/* Search bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mx-auto mb-8"
-        >
-          <SearchUI
-            availableLocations={availableLocations}
-            availableMonths={availableMonths}
-          />
-        </motion.div>
-
-        {/* Category pills */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex flex-wrap justify-center gap-2 mb-12"
-        >
-          {categories.map((cat) => (
-            <button
-              key={cat.label}
-              onClick={() => setActiveCategory(activeCategory === cat.label ? null : cat.label)}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
-                activeCategory === cat.label
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'bg-background text-muted-foreground border-border hover:border-muted-foreground hover:shadow-sm'
-              }`}
-            >
-              <span>{cat.emoji}</span>
-              {cat.label}
-            </button>
-          ))}
-        </motion.div>
-
-        {/* Trust bar */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground border-t border-border pt-8"
-        >
-          {[
-            'Keine Kreditkarte',
-            '1 Trip mit 50% Rabatt',
-            '35.000+ Nomaden weltweit',
-            'Jederzeit kündbar',
-          ].map((item) => (
-            <span key={item} className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">✓</span>
-              {item}
-            </span>
-          ))}
-        </motion.div>
       </div>
     </section>
   )

@@ -28,7 +28,7 @@ const steps = [
     number: '04',
     icon: Plane,
     title: 'Gemeinsam reisen',
-    description: 'Bucht zusammen, teilt die Kosten fair und verbindet euch mit der globalen SyncStay-Community an jedem Ort der Welt.',
+    description: 'Bucht zusammen, teilt die Kosten fair und verbindet euch mit anderen Nomaden an jedem Ort der Welt.',
   },
 ]
 

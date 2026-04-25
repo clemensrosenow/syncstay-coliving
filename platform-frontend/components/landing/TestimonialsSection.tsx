@@ -1,10 +1,19 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star } from 'lucide-react'
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  useCarousel,
+} from '@/components/ui/carousel'
 
 const testimonials = [
   {
@@ -42,34 +51,50 @@ const testimonials = [
     role: 'Product Manager · Remote-first',
     initials: 'LF',
     quote:
-      'In zwei Monaten mit SyncStay habe ich mehr echte Connections gemacht als in zwei Jahren Solo-Reisen. Die Community-Events sind Gold wert – besonders die lokalen Pop-ups.',
+      'In zwei Monaten mit SyncStay habe ich mehr echte Connections gemacht als in zwei Jahren Solo-Reisen. Die Events sind Gold wert – besonders die lokalen Pop-ups.',
     destination: 'Lissabon → Tbilisi',
     country: '🇮🇹 Italien',
     rating: 5,
   },
 ]
 
+function CarouselDots() {
+  const { api } = useCarousel()
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
+
+  useEffect(() => {
+    if (!api) return
+
+    setScrollSnaps(api.scrollSnapList())
+    api.on('select', () => {
+      setSelectedIndex(api.selectedScrollSnap())
+    })
+    api.on('reInit', () => {
+      setScrollSnaps(api.scrollSnapList())
+      setSelectedIndex(api.selectedScrollSnap())
+    })
+  }, [api])
+
+  if (scrollSnaps.length <= 1) return null
+
+  return (
+    <div className="flex justify-center gap-2 mt-8">
+      {scrollSnaps.map((_, index) => (
+        <button
+          key={index}
+          className={`h-2 rounded-full transition-all ${
+            index === selectedIndex ? 'bg-primary w-6' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50 w-2'
+          }`}
+          onClick={() => api?.scrollTo(index)}
+          aria-label={`Go to slide ${index + 1}`}
+        />
+      ))}
+    </div>
+  )
+}
+
 export function TestimonialsSection() {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const [current, setCurrent] = useState(0)
-  const cardWidth = 380
-
-  const scrollTo = (index: number) => {
-    const clamped = Math.max(0, Math.min(testimonials.length - 1, index))
-    setCurrent(clamped)
-    if (trackRef.current) {
-      trackRef.current.scrollTo({ left: clamped * (cardWidth + 24), behavior: 'smooth' })
-    }
-  }
-
-  const handleScroll = () => {
-    if (trackRef.current) {
-      const scrollLeft = trackRef.current.scrollLeft
-      const index = Math.round(scrollLeft / (cardWidth + 24))
-      setCurrent(Math.min(index, testimonials.length - 1))
-    }
-  }
-
   return (
     <section className="py-24 bg-muted/50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,101 +110,69 @@ export function TestimonialsSection() {
             Von Nomaden, für Nomaden
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Was unsere Community über SyncStay sagt.
+            Was unsere Nutzer über SyncStay sagen.
           </p>
         </motion.div>
 
-        {/* Carousel track */}
+        {/* Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.15 }}
-          className="relative"
+          className="px-0 sm:px-12 lg:px-16"
         >
-          <div
-            ref={trackRef}
-            onScroll={handleScroll}
-            className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          <Carousel
+            opts={{
+              align: 'start',
+              dragFree: true,
+            }}
+            plugins={[WheelGesturesPlugin()]}
+            className="w-full"
           >
-            <style>{`.snap-scroll::-webkit-scrollbar { display: none; }`}</style>
-            <div className="hidden lg:block flex-shrink-0 w-[calc((100vw-1280px)/2+16px)]" />
-
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 + i * 0.08 }}
-                className="flex-shrink-0 w-[340px] sm:w-[380px] snap-center"
-              >
-                <Card className="rounded-3xl border border-border p-8 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
-                  <div className="flex gap-1 mb-5">
-                    {Array.from({ length: t.rating }).map((_, j) => (
-                      <Star key={j} size={16} className="fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-
-                  <blockquote className="text-foreground leading-relaxed text-sm flex-1 mb-6">
-                    "{t.quote}"
-                  </blockquote>
-
-                  <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full mb-6 w-fit">
-                    <span>✈️</span>
-                    {t.destination}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-5 border-t border-border">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
-                        {t.initials}
+            <CarouselContent className="-ml-4 py-4 -my-4">
+              {testimonials.map((t) => (
+                <CarouselItem key={t.name} className="pl-4 pb-8 pt-2 md:basis-1/2 lg:basis-1/3">
+                  <div className="h-full">
+                    <Card className="rounded-3xl border border-border p-8 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
+                      <div className="flex gap-1 mb-5">
+                        {Array.from({ length: t.rating }).map((_, j) => (
+                          <Star key={j} size={16} className="fill-yellow-400 text-yellow-400" />
+                        ))}
                       </div>
-                      <div>
-                        <p className="font-semibold text-foreground text-sm">{t.name}</p>
-                        <p className="text-muted-foreground text-xs">{t.role}</p>
+
+                      <blockquote className="text-foreground leading-relaxed text-sm flex-1 mb-6">
+                        "{t.quote}"
+                      </blockquote>
+
+                      <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full mb-6 w-fit">
+                        <span>✈️</span>
+                        {t.destination}
                       </div>
-                    </div>
-                    <span className="text-sm">{t.country}</span>
+
+                      <div className="flex items-center justify-between pt-5 border-t border-border">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                            {t.initials}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-foreground text-sm">{t.name}</p>
+                            <p className="text-muted-foreground text-xs">{t.role}</p>
+                          </div>
+                        </div>
+                        <span className="text-sm">{t.country}</span>
+                      </div>
+                    </Card>
                   </div>
-                </Card>
-              </motion.div>
-            ))}
-
-            <div className="flex-shrink-0 w-4" />
-          </div>
-
-          {/* Navigation */}
-          <div className="flex items-center justify-center gap-4 mt-8">
-            <button
-              onClick={() => scrollTo(current - 1)}
-              disabled={current === 0}
-              className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <ChevronLeft size={18} className="text-foreground" />
-            </button>
-
-            <div className="flex gap-2">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => scrollTo(i)}
-                  className={`rounded-full transition-all duration-300 ${
-                    i === current ? 'w-6 h-2.5 bg-primary' : 'w-2.5 h-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                  }`}
-                />
+                </CarouselItem>
               ))}
+            </CarouselContent>
+            <div className="hidden sm:block">
+              <CarouselPrevious className="-left-4 lg:-left-12" />
+              <CarouselNext className="-right-4 lg:-right-12" />
             </div>
-
-            <button
-              onClick={() => scrollTo(current + 1)}
-              disabled={current === testimonials.length - 1}
-              className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <ChevronRight size={18} className="text-foreground" />
-            </button>
-          </div>
+            <CarouselDots />
+          </Carousel>
         </motion.div>
 
         {/* Social proof bar */}
@@ -195,7 +188,7 @@ export function TestimonialsSection() {
             { value: '2.400+', label: 'Aktive Nutzer' },
             { value: '89%', label: 'Würden SyncStay empfehlen' },
             { value: '69', label: 'Länder weltweit' },
-          ].map(stat => (
+          ].map((stat) => (
             <div key={stat.label} className="flex flex-col items-center">
               <span className="font-bold text-2xl text-foreground">{stat.value}</span>
               <span className="text-muted-foreground text-sm">{stat.label}</span>

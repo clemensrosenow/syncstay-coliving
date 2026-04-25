@@ -4,7 +4,6 @@ import { getSearchPageData } from '@/app/search/lib/data'
 import { parseSearchParams } from '@/app/search/lib/utils'
 
 import { HeroSection } from '@/components/landing/HeroSection'
-import { StatsBar } from '@/components/landing/StatsBar'
 import { FeaturedProperties } from '@/components/landing/FeaturedProperties'
 import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection'
@@ -38,7 +37,6 @@ export default async function Home() {
           availableMonths={data.availableMonths}
         />
       </Suspense>
-      <StatsBar />
       <FeaturedProperties
         properties={data.properties}
         isSignedIn={Boolean(data.activeUserId)}

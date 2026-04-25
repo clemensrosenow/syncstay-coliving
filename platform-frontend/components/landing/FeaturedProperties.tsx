@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 import PropertyPreviewCard from '@/lib/properties/PropertyPreviewCard'
-import { type Property } from '@/lib/properties/types'
+import { type SearchProperty } from '@/app/search/lib/types'
 import {
   Carousel,
   CarouselContent,
@@ -54,7 +54,7 @@ export function FeaturedProperties({
   properties,
   isSignedIn,
 }: {
-  properties: Property[]
+  properties: SearchProperty[]
   isSignedIn: boolean
 }) {
   return (

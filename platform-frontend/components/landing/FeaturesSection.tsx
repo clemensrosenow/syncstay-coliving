@@ -45,18 +45,6 @@ const features = [
     cta: 'Stays entdecken',
     to: '/search',
   },
-  {
-    id: 'community',
-    icon: Heart,
-    gradient: 'from-pink-400 via-rose-500 to-red-500',
-    title: 'Community Hub',
-    subtitle: 'Remote, aber nie allein',
-    description:
-      'Monatliche virtuelle Meetups, Skill-Sharing-Sessions und lokale Pop-up-Events weltweit. Dein globales Nomaden-Netzwerk wächst mit dir.',
-    bullets: ['Virtuelle Meetups', 'Skill-Sharing', 'Lokale Events', 'Peer-Reviews'],
-    cta: 'Community erkunden',
-    to: '/',
-  },
 ]
 
 export function FeaturesSection() {
