@@ -86,6 +86,7 @@ function hasOverwriteFlag(): boolean {
 async function clearExistingData() {
   console.log("🧹 Overwrite enabled. Removing existing seed data...");
 
+  await db.delete(schema.testimonials);
   await db.delete(schema.podMembers);
   await db.delete(schema.pods);
   await db.delete(schema.userLanguages);
@@ -1352,6 +1353,42 @@ async function seed() {
       .where(eq(schema.pods.id, update.id));
   }
 
+  // 14. Testimonials
+  const testimonialData = [
+    {
+      id: uuid(),
+      podMemberId: podMemberData.find(m => m.userId === userData[0].id)!.id!, // Mia Bauer
+      quote: "SyncStay completely changed my travel experience. I found my perfect co-working partner for Lisbon – we still work together today. The AI recommendations were spot on from the beginning.",
+      rating: 5,
+      createdAt: new Date(),
+    },
+    {
+      id: uuid(),
+      podMemberId: podMemberData.find(m => m.userId === userData[7].id)!.id!, // Felix Wagner
+      quote: "Finally a platform that understands nomads aren't just on vacation, but working. The Trip Planner saved me 40% on costs and I made three genuine friends through a shared stay.",
+      rating: 5,
+      createdAt: new Date(),
+    },
+    {
+      id: uuid(),
+      podMemberId: podMemberData.find(m => m.userId === userData[12].id)!.id!, // Clara Bonnet
+      quote: "As an introvert, I was anxious about matching. But SyncStay understood what I needed: someone to co-work with, but with space to retreat. Perfect match in Palma!",
+      rating: 5,
+      createdAt: new Date(),
+    },
+    {
+      id: uuid(),
+      podMemberId: podMemberData.find(m => m.userId === userData[1].id)!.id!, // Luca Esposito
+      quote: "In two months with SyncStay I've made more genuine connections than in two years of solo travel. The community events are gold – especially the local pop-ups.",
+      rating: 5,
+      createdAt: new Date(),
+    }
+  ];
+
+  console.log(`💬 Inserting ${testimonialData.length} testimonials...`);
+  const testimonialInsert = db.insert(schema.testimonials).values(testimonialData);
+  await (overwrite ? testimonialInsert : testimonialInsert.onConflictDoNothing());
+
   await verifySeedImages();
 
   console.log("\n✅ Seed complete!");
@@ -1364,6 +1401,7 @@ async function seed() {
   console.log(`   Profiles    : ${profileData.length}`);
   console.log(`   Pods        : ${podData.length}`);
   console.log(`   Memberships : ${podMemberData.length}`);
+  console.log(`   Testimonials: ${testimonialData.length}`);
   if (overwrite) {
     console.log("   Mode        : overwrite");
   }

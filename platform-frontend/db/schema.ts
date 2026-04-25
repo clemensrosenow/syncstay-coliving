@@ -238,6 +238,22 @@ export const podMembers = pgTable(
   ],
 );
 
+// ── Testimonials ─────────────────────────────────────────────────
+
+export const testimonials = pgTable("testimonials", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  podMemberId: text("pod_member_id")
+    .references(() => podMembers.id, { onDelete: "cascade" })
+    .notNull(),
+  quote: text("quote").notNull(),
+  rating: integer("rating").default(5).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 // ── Relations ────────────────────────────────────────────────────
 
 export const userProfilesRelations = relations(userProfiles, ({ one, many }) => ({
@@ -318,7 +334,7 @@ export const podsRelations = relations(pods, ({ one, many }) => ({
   members: many(podMembers),
 }));
 
-export const podMembersRelations = relations(podMembers, ({ one }) => ({
+export const podMembersRelations = relations(podMembers, ({ one, many }) => ({
   pod: one(pods, {
     fields: [podMembers.podId],
     references: [pods.id],
@@ -326,5 +342,13 @@ export const podMembersRelations = relations(podMembers, ({ one }) => ({
   user: one(users, {
     fields: [podMembers.userId],
     references: [users.id],
+  }),
+  testimonials: many(testimonials),
+}));
+
+export const testimonialsRelations = relations(testimonials, ({ one }) => ({
+  podMember: one(podMembers, {
+    fields: [testimonials.podMemberId],
+    references: [podMembers.id],
   }),
 }));
