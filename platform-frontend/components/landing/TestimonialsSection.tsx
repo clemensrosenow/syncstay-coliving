@@ -109,54 +109,56 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
             plugins={[WheelGesturesPlugin()]}
             className="w-full"
           >
-            <CarouselContent className="-ml-4 py-4 -my-4">
-              {testimonials.map((t) => (
-                <CarouselItem key={t.name} className="pl-4 pb-8 pt-2 md:basis-1/2 lg:basis-1/3">
-                  <div className="h-full">
-                    <Card className="rounded-2xl border border-border p-6 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full bg-card">
-                      
-                        <div className="flex items-center gap-3 mb-5">
-                          <Avatar className="border border-stone-200 size-10">
-                            <AvatarImage src={t.image ?? undefined} alt={t.name} />
-                            <AvatarFallback className="bg-stone-100 font-semibold text-stone-600 text-sm">
-                              {t.initials}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-semibold text-foreground text-sm leading-none mb-1">{t.name}</p>
-                            <p className="text-muted-foreground text-xs">{t.jobLocation}</p>
+            <div className="relative">
+              <CarouselContent className="-ml-4 py-4 -my-4">
+                {testimonials.map((t) => (
+                  <CarouselItem key={t.name} className="pl-4 pb-8 pt-2 md:basis-1/2 lg:basis-1/3">
+                    <div className="h-full">
+                      <Card className="rounded-2xl border border-border p-6 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full bg-card">
+                        
+                          <div className="flex items-center gap-3 mb-5">
+                            <Avatar className="border border-stone-200 size-10">
+                              <AvatarImage src={t.image ?? undefined} alt={t.name} />
+                              <AvatarFallback className="bg-stone-100 font-semibold text-stone-600 text-sm">
+                                {t.initials}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-semibold text-foreground text-sm leading-none mb-1">{t.name}</p>
+                              <p className="text-muted-foreground text-xs">{t.jobLocation}</p>
+                            </div>
                           </div>
-                        </div>
-                    
                       
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: t.rating }).map((_, j) => (
-                          <Star key={j} size={14} className="fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
+                        
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: t.rating }).map((_, j) => (
+                            <Star key={j} size={14} className="fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
 
-                      <blockquote className="text-foreground/90 leading-relaxed text-[15px] flex-1 mb-2">
-                        "{t.quote}"
-                      </blockquote>
+                        <blockquote className="text-foreground/90 leading-relaxed text-[15px] flex-1 mb-2">
+                          "{t.quote}"
+                        </blockquote>
 
-                      <Item variant="muted">
-                        <ItemMedia variant="icon">
-                          <Info size={12} className="text-muted-foreground" />
-                        </ItemMedia>
-                        <ItemContent>
-                          <ItemDescription className="text-xs">
-                            {t.podNotice}
-                          </ItemDescription>
-                        </ItemContent>
-                      </Item>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="hidden sm:block">
-              <CarouselPrevious className="-left-4 lg:-left-12" />
-              <CarouselNext className="-right-4 lg:-right-12" />
+                        <Item variant="muted">
+                          <ItemMedia variant="icon">
+                            <Info size={12} className="text-muted-foreground" />
+                          </ItemMedia>
+                          <ItemContent>
+                            <ItemDescription className="text-xs">
+                              {t.podNotice}
+                            </ItemDescription>
+                          </ItemContent>
+                        </Item>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="hidden sm:block">
+                <CarouselPrevious className="-left-4 lg:-left-12" />
+                <CarouselNext className="-right-4 lg:-right-12" />
+              </div>
             </div>
             <CarouselDots />
           </Carousel>

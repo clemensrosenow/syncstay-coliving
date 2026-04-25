@@ -77,21 +77,23 @@ export function FeaturedProperties({
           plugins={[WheelGesturesPlugin()]}
           className="w-full"
         >
-          <CarouselContent className="-ml-4 py-4 -my-4">
-            {properties.map((property) => (
-              <CarouselItem key={property.id} className="pl-4 pb-8 pt-2 md:basis-1/2 lg:basis-1/3">
-                <div className="h-full">
-                  <PropertyPreviewCard
-                    property={property}
-                    isSignedIn={isSignedIn}
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <div className="hidden sm:block">
-            <CarouselPrevious className="-left-4 lg:-left-12" />
-            <CarouselNext className="-right-4 lg:-right-12" />
+          <div className="relative">
+            <CarouselContent className="-ml-4 py-4 -my-4">
+              {properties.map((property) => (
+                <CarouselItem key={property.id} className="pl-4 pb-8 pt-2 md:basis-1/2 lg:basis-1/3">
+                  <div className="h-full">
+                    <PropertyPreviewCard
+                      property={property}
+                      isSignedIn={isSignedIn}
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="hidden sm:block">
+              <CarouselPrevious className="-left-4 lg:-left-12" />
+              <CarouselNext className="-right-4 lg:-right-12" />
+            </div>
           </div>
           <CarouselDots />
         </Carousel>
