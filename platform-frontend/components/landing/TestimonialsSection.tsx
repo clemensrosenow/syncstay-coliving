@@ -86,7 +86,7 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
         >
           <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Testimonials</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            By nomads, for nomads
+             Real Experiences
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             What our users say about SyncStay.
