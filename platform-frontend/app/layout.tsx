@@ -6,6 +6,7 @@ import { Providers } from "./providers";
 import { cn } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 import { GlobalNavigation } from "./components/GlobalNavigation";
+import { LandingFooter } from "./components/LandingFooter";
 
 const geistHeading = Geist({subsets:['latin'],variable:'--font-heading'});
 
@@ -51,6 +52,7 @@ export default async function RootLayout({
           <main className="pt-16">
             {children}
           </main>
+          <LandingFooter />
         </Providers>
       </body>
     </html>
