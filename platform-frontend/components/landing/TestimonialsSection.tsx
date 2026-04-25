@@ -114,8 +114,8 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
                 <CarouselItem key={t.name} className="pl-4 pb-8 pt-2 md:basis-1/2 lg:basis-1/3">
                   <div className="h-full">
                     <Card className="rounded-2xl border border-border p-6 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full bg-card">
-                      <div className="mb-4">
-                        <div className="flex items-center gap-3 mb-3">
+                      
+                        <div className="flex items-center gap-3 mb-5">
                           <Avatar className="border border-stone-200 size-10">
                             <AvatarImage src={t.image ?? undefined} alt={t.name} />
                             <AvatarFallback className="bg-stone-100 font-semibold text-stone-600 text-sm">
@@ -127,7 +127,7 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
                             <p className="text-muted-foreground text-xs">{t.jobLocation}</p>
                           </div>
                         </div>
-                      </div>
+                    
                       
                       <div className="flex gap-0.5">
                         {Array.from({ length: t.rating }).map((_, j) => (
@@ -135,7 +135,7 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
                         ))}
                       </div>
 
-                      <blockquote className="text-foreground/90 leading-relaxed text-[15px] flex-1 mb-5">
+                      <blockquote className="text-foreground/90 leading-relaxed text-[15px] flex-1 mb-2">
                         "{t.quote}"
                       </blockquote>
 

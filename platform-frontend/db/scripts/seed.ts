@@ -1365,21 +1365,35 @@ async function seed() {
     {
       id: uuid(),
       podMemberId: podMemberData.find(m => m.userId === userData[7].id)!.id!, // Felix Wagner
-      quote: "Finally a platform that understands nomads aren't just on vacation, but working. The Trip Planner saved me 40% on costs and I made three genuine friends through a shared stay.",
+      quote: "Finally a platform that understands nomads aren't just on vacation, but working. Sharing a villa was not only more affordable, but I made three genuine friends.",
       rating: 5,
       createdAt: new Date(),
     },
     {
       id: uuid(),
       podMemberId: podMemberData.find(m => m.userId === userData[12].id)!.id!, // Clara Bonnet
-      quote: "As an introvert, I was anxious about matching. But SyncStay understood what I needed: someone to co-work with, but with space to retreat. Perfect match in Palma!",
+      quote: "As an introvert, I was anxious about matching. But SyncStay understood what I needed: someone to co-work with, but with space to retreat. Perfect match in Barcelona!",
       rating: 5,
       createdAt: new Date(),
     },
     {
       id: uuid(),
       podMemberId: podMemberData.find(m => m.userId === userData[1].id)!.id!, // Luca Esposito
-      quote: "In two months with SyncStay I've made more genuine connections than in two years of solo travel. The community events are gold – especially the local pop-ups.",
+      quote: "In two months with SyncStay I've made more genuine connections than in two years of solo travel. Living with like-minded remote workers takes the isolation out of the nomad lifestyle.",
+      rating: 5,
+      createdAt: new Date(),
+    },
+    {
+      id: uuid(),
+      podMemberId: podMemberData.find(m => m.userId === userData[4].id)!.id!, // Sofia Garcia
+      quote: "I was tired of feeling isolated while working remotely. Finding a pod through SyncStay gave me an instant community and the perfect balance of deep work and shared dinners.",
+      rating: 5,
+      createdAt: new Date(),
+    },
+    {
+      id: uuid(),
+      podMemberId: podMemberData.find(m => m.userId === userData[9].id)!.id!, // Oliver Smith
+      quote: "The quality of the housing is incredible, but what really makes SyncStay special is the people. It completely takes the guesswork out of finding reliable flatmates abroad.",
       rating: 5,
       createdAt: new Date(),
     }
