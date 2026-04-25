@@ -1,12 +1,24 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = {
-  Product: ["Features", "Pricing", "Roadmap", "Changelog"],
-  Company: ["About us", "Team", "Blog", "Press"],
-  Legal: ["Privacy Policy", "Terms & Conditions", "Legal Notice", "Cookie Policy"],
-  Support: ["FAQ", "Documentation", "Community", "Contact"],
+  Product: [
+    { label: "How it works", href: "/#how-it-works" },
+    { label: "About us", href: "/#team" },
+    { label: "Pricing", href: "/#pricing" },
+  ],
+  Actions: [
+    { label: "Browse stays", href: "/search" },
+    { label: "Sign in", href: "/auth/sign-in" },
+    { label: "Sign up", href: "/auth/sign-up" },
+  ],
+  Legal: [
+    { label: "Privacy Policy" },
+    { label: "Terms & Conditions" },
+    { label: "Legal Notice" },
+  ],
 };
 
 export function LandingFooter() {
@@ -28,37 +40,39 @@ export function LandingFooter() {
   };
 
   return (
-    <footer className="border-t border-slate-800 bg-slate-950 text-slate-300">
+    <footer className="border-t-2 border-border bg-linear-to-b from-muted to-background text-foreground shadow-inner">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-5">
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2">
             <div className="mb-4 flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-                S
-              </span>
-              <span className="font-heading text-lg font-semibold text-white">
+              <span className="font-heading text-lg font-semibold text-foreground">
                 SyncStay
               </span>
             </div>
-            <p className="text-sm leading-relaxed text-slate-400">
+            <p className="text-sm leading-relaxed text-muted-foreground max-w-xs">
               Remote, but never alone. AI-powered matching for digital nomads.
             </p>
-            <p className="mt-4 text-xs text-slate-500">© 2025 SyncStay GmbH</p>
+            <p className="mt-4 text-xs text-muted-foreground/80">© 2026 SyncStay GmbH</p>
           </div>
 
           {Object.entries(links).map(([section, items]) => (
             <div key={section}>
-              <h4 className="mb-4 text-sm font-medium text-white">{section}</h4>
+              <h4 className="mb-4 text-sm font-medium text-foreground">{section}</h4>
               <ul className="space-y-2">
                 {items.map((item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
-                      onClick={(event) => event.preventDefault()}
-                      className="text-sm text-slate-400 transition-colors duration-200 hover:text-white"
-                    >
-                      {item}
-                    </a>
+                  <li key={item.label}>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="text-sm text-muted-foreground transition-colors duration-200 hover:text-primary"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-muted-foreground/75">
+                        {item.label}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -66,14 +80,14 @@ export function LandingFooter() {
           ))}
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-8 sm:flex-row">
-          <p className="text-xs text-slate-500">
-            Made by WWI23SCA | DHBW Mannheim | Integrationsseminar 2025
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
+          <p className="text-xs text-muted-foreground/80">
+            Made by WWI23SCA | DHBW Mannheim | Integrationsseminar 2026
           </p>
           <button
             type="button"
             onClick={handleScrollTop}
-            className="text-xs text-primary transition-colors hover:text-sky-300"
+            className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
           >
             ↑ Back to top
           </button>

@@ -11,7 +11,6 @@ import { HowItWorksSection } from '@/components/landing/HowItWorksSection'
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection'
 import { PricingSection } from '@/components/landing/PricingSection'
 import { TeamSection } from '@/components/landing/TeamSection'
-import { CTASection } from '@/components/landing/CTASection'
 
 export const dynamic = 'force-dynamic'
 
@@ -97,9 +96,8 @@ export default async function Home() {
       />
       <HowItWorksSection />
       <TestimonialsSection testimonials={formattedTestimonials} />
-      <PricingSection />
       <TeamSection />
-      <CTASection />
+      <PricingSection />
     </main>
   )
 }

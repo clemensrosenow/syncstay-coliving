@@ -58,16 +58,7 @@ export function FeaturedProperties({
   isSignedIn: boolean
 }) {
   return (
-    <section className="py-20 bg-muted/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 mb-10">
-        <p className="text-sm text-muted-foreground font-medium mb-2">
-          Top nomad hotspots 2026
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
-          Your next workspace is waiting
-        </h2>
-      </div>
-
+    <section className="bg-gradient-to-b from-background via-background to-muted/50 pt-4 pb-14 sm:pt-6 sm:pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
         <Carousel
           opts={{

@@ -65,7 +65,7 @@ export function TeamSection() {
                 transition={{ duration: 0.6, delay: 0.1 + index * 0.1 }}
                 className={`flex flex-col items-center text-center ${colClass}`}
               >
-                <Avatar className="size-32 md:size-40 mb-6 shadow-sm border border-border/50">
+                <Avatar className="size-32 md:size-40 mb-5 shadow-sm border border-border/50">
                   {member.image && <AvatarImage src={member.image} alt={member.name} className="object-cover" />}
                 </Avatar>
                 <strong className="text-lg font-semibold text-foreground mb-1">{member.name}</strong>
