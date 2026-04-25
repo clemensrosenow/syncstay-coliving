@@ -14,7 +14,7 @@ const teamMembers = [
     role: 'Requirements Engineer',
     color: 'bg-blue-500',
     skills: ['System Design', 'Requirements', 'Agile'],
-    bio: 'Leidenschaftlicher Requirements Engineer mit Fokus auf User-zentrierte Produktentwicklung.',
+    bio: 'Passionate requirements engineer focused on user-centered product development.',
   },
   {
     initials: 'BH',
@@ -22,7 +22,7 @@ const teamMembers = [
     role: 'Project Lead',
     color: 'bg-purple-500',
     skills: ['Leadership', 'Scrum', 'Strategy'],
-    bio: 'Erfahrener Project Lead mit Begeisterung für agile Methoden und Teamdynamik.',
+    bio: 'Experienced project lead with a passion for agile methods and team dynamics.',
   },
   {
     initials: 'LS',
@@ -30,7 +30,7 @@ const teamMembers = [
     role: 'PMO & UX/UI Design',
     color: 'bg-green-500',
     skills: ['Figma', 'UX Research', 'Design Systems'],
-    bio: 'Designer mit einem Auge fürs Detail und dem Gespür für nutzerzentrierte Erlebnisse.',
+    bio: 'Designer with an eye for detail and a strong instinct for user-centered experiences.',
   },
   {
     initials: 'CR',
@@ -38,7 +38,7 @@ const teamMembers = [
     role: 'System Architect',
     color: 'bg-orange-500',
     skills: ['Cloud Architecture', 'Microservices', 'DevOps'],
-    bio: 'Architekt komplexer verteilter Systeme mit Fokus auf Skalierbarkeit und Resilienz.',
+    bio: 'Architect of complex distributed systems with a focus on scalability and resilience.',
   },
   {
     initials: 'AS',
@@ -46,7 +46,7 @@ const teamMembers = [
     role: 'Senior Developer',
     color: 'bg-red-500',
     skills: ['React', 'TypeScript', 'Node.js'],
-    bio: 'Full-Stack Developer mit Leidenschaft für sauberen Code und moderne Web-Technologien.',
+    bio: 'Full-stack developer with a passion for clean code and modern web technologies.',
   },
 ]
 
@@ -65,10 +65,10 @@ export function TeamSection() {
         >
           <Badge variant="secondary" className="mb-4">Team</Badge>
           <h2 className="text-4xl font-bold text-foreground mb-4 tracking-tight">
-            Das Team hinter SyncStay
+            The team behind SyncStay
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Fünf Studierende der DHBW Mannheim mit einer gemeinsamen Vision: Nomaden verbinden.
+            Five DHBW Mannheim students with one shared vision: connecting nomads.
           </p>
         </motion.div>
 
@@ -123,7 +123,7 @@ export function TeamSection() {
                   <button
                     onClick={() => setSelectedMember(null)}
                     className="p-2 rounded-lg hover:bg-muted transition-colors"
-                    aria-label="Modal schließen"
+                    aria-label="Close modal"
                   >
                     <X size={20} className="text-muted-foreground" />
                   </button>
@@ -139,7 +139,7 @@ export function TeamSection() {
 
                 <button className="flex items-center gap-2 text-primary text-sm font-medium hover:text-primary/80 transition-colors">
                   <LinkIcon size={16} />
-                  LinkedIn-Profil
+                  LinkedIn profile
                 </button>
               </motion.div>
             </motion.div>

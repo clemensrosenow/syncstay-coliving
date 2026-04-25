@@ -36,7 +36,7 @@ export function HeroSection({
             >
               <Badge variant="secondary" className="px-4 py-2 font-semibold">
                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse mr-2" />
-                Jetzt in Beta – Kostenlos beitreten
+                Now in beta - Join for free
               </Badge>
             </motion.div>
 
@@ -46,10 +46,10 @@ export function HeroSection({
               transition={{ duration: 0.7, delay: 0.1 }}
               className="font-bold text-5xl sm:text-6xl lg:text-7xl text-foreground leading-[1.05] mb-6 tracking-tight"
             >
-              Co-Living für
+              Co-living for
               <br />
               <span className="relative inline-block">
-                <span className="relative z-10 text-primary">Digitale Nomaden</span>
+                <span className="relative z-10 text-primary">Digital Nomads</span>
                 <motion.span
                   className="absolute -bottom-1 left-0 right-0 h-3 bg-secondary -z-[1] opacity-40 rounded"
                   initial={{ scaleX: 0, originX: 0 }}
@@ -65,8 +65,8 @@ export function HeroSection({
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-muted-foreground text-xl mb-8 max-w-xl leading-relaxed"
             >
-              Remote, aber nie allein. KI-Matching, kuratierte Co-Living-Stays und
-              faire Shared-Stay-Preise in einer Plattform.
+              Remote, but never alone. AI matching, curated co-living stays, and
+              fair shared-stay pricing in one platform.
             </motion.p>
 
             {/* Search bar */}
@@ -138,8 +138,8 @@ export function HeroSection({
                 <Star size={15} />
               </div>
               <div>
-                <p className="font-bold text-foreground text-xs">4.9/5 Bewertung</p>
-                <p className="text-muted-foreground text-[11px]">2.400+ Nomaden</p>
+                <p className="font-bold text-foreground text-xs">4.9/5 rating</p>
+                <p className="text-muted-foreground text-[11px]">2,400+ nomads</p>
               </div>
             </motion.div>
 
@@ -154,8 +154,8 @@ export function HeroSection({
                 <TrendingUp size={15} />
               </div>
               <div>
-                <p className="font-bold text-foreground text-xs">Bis 40% günstiger</p>
-                <p className="text-muted-foreground text-[11px]">durch Shared Stay</p>
+                <p className="font-bold text-foreground text-xs">Up to 40% cheaper</p>
+                <p className="text-muted-foreground text-[11px]">with shared stays</p>
               </div>
             </motion.div>
           </motion.div>

@@ -18,12 +18,12 @@ export function PricingSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Preise</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Pricing</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            Fair & Transparent
+            Fair & transparent
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-8">
-            Kostenlos anmelden und matchen. Du zahlst erst, wenn du deinen Aufenthalt buchst.
+            Sign up and get matched for free. You only pay when you book your stay.
           </p>
         </motion.div>
 
@@ -37,17 +37,17 @@ export function PricingSection() {
             <CardContent className="p-8 sm:p-12 relative z-10">
               <div className="grid sm:grid-cols-2 gap-12 items-center">
                 <div>
-                  <h3 className="text-2xl font-bold mb-4">Dynamische Servicegebühr</h3>
+                  <h3 className="text-2xl font-bold mb-4">Dynamic service fee</h3>
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-5xl font-bold tracking-tight">~15%</span>
-                    <span className="text-muted-foreground font-medium">pro Buchung</span>
+                    <span className="text-muted-foreground font-medium">per booking</span>
                   </div>
                   <p className="text-muted-foreground mb-8">
-                    Unsere Gebühr wird bei jeder Buchung dynamisch berechnet und deckt alle Kosten für Zahlungsabwicklung, Plattformbetrieb und Support.
+                    Our fee is calculated dynamically for each booking and covers payment processing, platform operations, and support.
                   </p>
                   <Button asChild className="w-full sm:w-auto rounded-xl px-8 py-6 font-medium text-sm transition-all duration-200">
                     <Link href="/signup">
-                      Kostenlos starten
+                      Get started for free
                       <ArrowRight size={16} className="ml-2" />
                     </Link>
                   </Button>
@@ -55,11 +55,11 @@ export function PricingSection() {
                 
                 <div className="space-y-4">
                   {[
-                    'Kostenlose Profilerstellung',
-                    'Unbegrenztes KI-Matching',
-                    'Keine monatlichen Fixkosten',
-                    'Sichere Zahlungsabwicklung',
-                    'Verifizierte Community'
+                    'Free profile creation',
+                    'Unlimited AI matching',
+                    'No monthly fixed fees',
+                    'Secure payment processing',
+                    'Verified community'
                   ].map((feature) => (
                     <div key={feature} className="flex items-center gap-3">
                       <div className="bg-primary/10 p-1.5 rounded-full text-primary flex-shrink-0">

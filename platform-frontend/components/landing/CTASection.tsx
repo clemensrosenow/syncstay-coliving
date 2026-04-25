@@ -28,18 +28,18 @@ export function CTASection() {
             <div>
               <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary bg-primary/10 px-4 py-2 rounded-full border border-primary/20 mb-6">
                 <Zap size={14} />
-                Jetzt starten – kostenlos
+                Start now - free
               </div>
 
               <h2 className="font-bold text-4xl sm:text-5xl text-background leading-tight mb-6 tracking-tight">
-                Bereit für dein
+                Ready for your
                 <br />
-                <span className="text-primary">nächstes Abenteuer?</span>
+                <span className="text-primary">next adventure?</span>
               </h2>
 
               <p className="text-background/70 text-lg leading-relaxed mb-8 max-w-md">
-                Schließe dich tausenden digitalen Nomaden an. Finde deinen perfekten
-                Pod und die passenden Mitbewohner – der Algorithmus übernimmt den Rest.
+                Join thousands of digital nomads. Find your perfect pod and the right
+                roommates while the algorithm handles the rest.
               </p>
 
               <motion.div
@@ -55,7 +55,7 @@ export function CTASection() {
                   className="inline-flex items-center gap-3 bg-primary text-primary-foreground font-bold px-10 py-8 rounded-full hover:bg-primary/90 transition-colors shadow-2xl shadow-primary/30 text-lg"
                 >
                   <Link href="/search">
-                    Jetzt Aufenthalt finden
+                    Find your stay now
                     <ArrowRight size={20} />
                   </Link>
                 </Button>
@@ -65,10 +65,10 @@ export function CTASection() {
             {/* Right: Stats cards */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: '🌍', value: '69', label: 'Länder', sub: 'weltweit aktiv' },
-                { icon: '🤝', value: '2.400+', label: 'Matches', sub: 'bisher vermittelt' },
-                { icon: '⭐', value: '4.9/5', label: 'Bewertung', sub: 'von Nutzern' },
-                { icon: '🏠', value: '890+', label: 'Stays', sub: 'erfolgreich gebucht' },
+                { icon: '🌍', value: '69', label: 'Countries', sub: 'active worldwide' },
+                { icon: '🤝', value: '2,400+', label: 'Matches', sub: 'made so far' },
+                { icon: '⭐', value: '4.9/5', label: 'Rating', sub: 'from users' },
+                { icon: '🏠', value: '890+', label: 'Stays', sub: 'successfully booked' },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}

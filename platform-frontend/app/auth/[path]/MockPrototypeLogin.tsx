@@ -75,7 +75,7 @@ export function MockPrototypeLogin({
       </p>
       <form action={formAction}>
         <input type="hidden" name="userId" value={selectedUserId} />
-        <div className="mt-4 space-y-2">
+        <div className="mt-6 space-y-2">
           <Label htmlFor="prototype-traveler">
             Select traveler
           </Label>

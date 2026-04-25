@@ -3,10 +3,10 @@
 import { usePathname } from "next/navigation";
 
 const links = {
-  Produkt: ["Funktionen", "Preise", "Roadmap", "Changelog"],
-  Unternehmen: ["Uber uns", "Team", "Blog", "Presse"],
-  Legal: ["Datenschutz", "AGB", "Impressum", "Cookie-Richtlinie"],
-  Support: ["FAQ", "Dokumentation", "Community", "Kontakt"],
+  Product: ["Features", "Pricing", "Roadmap", "Changelog"],
+  Company: ["About us", "Team", "Blog", "Press"],
+  Legal: ["Privacy Policy", "Terms & Conditions", "Legal Notice", "Cookie Policy"],
+  Support: ["FAQ", "Documentation", "Community", "Contact"],
 };
 
 export function LandingFooter() {
@@ -41,7 +41,7 @@ export function LandingFooter() {
               </span>
             </div>
             <p className="text-sm leading-relaxed text-slate-400">
-              Remote, aber nie allein. KI-gestutztes Matching fur digitale Nomaden.
+              Remote, but never alone. AI-powered matching for digital nomads.
             </p>
             <p className="mt-4 text-xs text-slate-500">© 2025 SyncStay GmbH</p>
           </div>
@@ -75,7 +75,7 @@ export function LandingFooter() {
             onClick={handleScrollTop}
             className="text-xs text-primary transition-colors hover:text-sky-300"
           >
-            ↑ Nach oben
+            ↑ Back to top
           </button>
         </div>
       </div>

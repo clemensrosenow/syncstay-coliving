@@ -84,12 +84,12 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Erfahrungen</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Testimonials</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            Von Nomaden, für Nomaden
+            By nomads, for nomads
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Was unsere Nutzer über SyncStay sagen.
+            What our users say about SyncStay.
           </p>
         </motion.div>
 

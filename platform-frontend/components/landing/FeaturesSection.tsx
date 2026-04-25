@@ -13,12 +13,12 @@ const features = [
     id: 'matching',
     icon: Users,
     gradient: 'from-blue-400 via-blue-500 to-indigo-600',
-    title: 'KI-Matching',
-    subtitle: 'Menschen, die wirklich zu dir passen',
+    title: 'AI Matching',
+    subtitle: 'People who truly fit you',
     description:
-      'Unser Algorithmus analysiert über 40 Parameter – von Schlafzeiten über Arbeitsintensität bis hin zu Persönlichkeitstypen. Finde Mitbewohner und Pods, die wirklich zu dir passen.',
-    bullets: ['Arbeitsstil-Kompatibilität', 'Lifestyle-Matching', 'Gemeinsame Interessen', 'Sprachpräferenzen'],
-    cta: 'Matches entdecken',
+      'Our algorithm analyzes more than 40 parameters, from sleep schedules and work intensity to personality types. Find roommates and pods that truly match you.',
+    bullets: ['Workstyle compatibility', 'Lifestyle matching', 'Shared interests', 'Language preferences'],
+    cta: 'Explore matches',
     to: '/search',
   },
   {
@@ -26,11 +26,11 @@ const features = [
     icon: Heart,
     gradient: 'from-emerald-400 via-teal-500 to-cyan-600',
     title: 'Community Fit',
-    subtitle: 'Ankommen mit den richtigen Menschen',
+    subtitle: 'Arrive with the right people',
     description:
-      'Sieh vorab, wer in einem Pod lebt, wie die Gruppe arbeitet und welche Stimmung vor Ort entsteht. So buchst du nicht nur eine Unterkunft, sondern ein Umfeld, das wirklich passt.',
-    bullets: ['Pod-Profile im Voraus', 'Gemeinsame Interessen', 'Arbeitsrhythmus sichtbar', 'Mehr Vertrauen vor der Buchung'],
-    cta: 'Community entdecken',
+      'See in advance who is staying in a pod, how the group works, and what kind of atmosphere to expect. That way, you are not just booking a place to stay, but an environment that truly fits.',
+    bullets: ['See pod profiles early', 'Shared interests', 'Visible work rhythms', 'More trust before booking'],
+    cta: 'Explore the community',
     to: '/search',
   },
   {
@@ -38,11 +38,11 @@ const features = [
     icon: Home,
     gradient: 'from-amber-400 via-orange-500 to-rose-500',
     title: 'Shared Stay',
-    subtitle: 'Günstiger wohnen, besser vernetzen',
+    subtitle: 'Live for less, connect more',
     description:
-      'Teile Apartments mit geprüften Community-Mitgliedern. Dynamische Preisoptimierung, faire Kostenaufteilung und transparente Abrechnung ohne versteckte Gebühren.',
-    bullets: ['Verifizierte Partner', 'Fair-Split Abrechnung', 'Flexible Laufzeiten', 'Notfall-Support 24/7'],
-    cta: 'Stays entdecken',
+      'Share apartments with verified community members. Dynamic pricing, fair cost sharing, and transparent billing without hidden fees.',
+    bullets: ['Verified members', 'Fair split billing', 'Flexible stays', '24/7 emergency support'],
+    cta: 'Explore stays',
     to: '/search',
   },
 ]
@@ -56,12 +56,12 @@ export function FeaturesSection() {
     <section id="features" className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Funktionen</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Features</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            Alles, was du als Nomade brauchst
+            Everything you need as a nomad
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Von passenden Menschen bis zur richtigen Unterkunft begleitet dich SyncStay bei jedem Aufenthalt.
+            From the right people to the right place to stay, SyncStay supports every step of your journey.
           </p>
         </div>
 

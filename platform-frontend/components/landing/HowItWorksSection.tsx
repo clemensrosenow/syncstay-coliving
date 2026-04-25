@@ -9,26 +9,26 @@ const steps = [
   {
     number: '01',
     icon: UserCircle,
-    title: 'Profil erstellen',
-    description: 'Gib deinen Arbeitsstil, deine Interessen und Wohnpräferenzen an. Unser Persönlichkeitstest findet in 5 Minuten deinen Nomaden-Typ.',
+    title: 'Create your profile',
+    description: 'Share your work style, interests, and living preferences. Our personality test identifies your nomad type in just 5 minutes.',
   },
   {
     number: '02',
     icon: Sparkles,
-    title: 'KI matcht dich',
-    description: 'Der Algorithmus analysiert 40+ Parameter und schlägt dir kompatible Mitbewohner, passende Pods und geeignete Coworking-Umfelder vor.',
+    title: 'AI matches you',
+    description: 'The algorithm analyzes 40+ parameters and recommends compatible roommates, fitting pods, and suitable coworking environments.',
   },
   {
     number: '03',
     icon: Home,
-    title: 'Pod auswählen',
-    description: 'Vergleiche verfügbare Stays, prüfe Preis, Community und Ausstattung und finde den Ort, der zu deinem nächsten Monat passt.',
+    title: 'Choose your pod',
+    description: 'Compare available stays, check pricing, community, and amenities, and find the place that fits your next month.',
   },
   {
     number: '04',
     icon: Plane,
-    title: 'Einziehen & vernetzen',
-    description: 'Buche deinen Aufenthalt, teile die Kosten fair und starte vor Ort direkt mit einer passenden Community.',
+    title: 'Move in & connect',
+    description: 'Book your stay, split costs fairly, and arrive to a community that already feels right.',
   },
 ]
 
@@ -37,12 +37,12 @@ export function HowItWorksSection() {
     <section id="how-it-works" className="py-24 bg-muted/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">So funktioniert&apos;s</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">How it works</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            In 4 Schritten zum passenden Aufenthalt
+            Find the right stay in 4 steps
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Von der Registrierung bis zum Einzug in deinen Pod - einfach, schnell, intelligent.
+            From sign-up to move-in: simple, fast, and smart.
           </p>
         </div>
 
