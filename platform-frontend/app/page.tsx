@@ -7,7 +7,6 @@ import { db } from '@/db/drizzle'
 
 import { HeroSection } from '@/components/landing/HeroSection'
 import { FeaturedProperties } from '@/components/landing/FeaturedProperties'
-import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection'
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection'
 import { PricingSection } from '@/components/landing/PricingSection'
@@ -96,7 +95,6 @@ export default async function Home() {
         properties={data.properties}
         isSignedIn={Boolean(data.activeUserId)}
       />
-      <FeaturesSection />
       <HowItWorksSection />
       <TestimonialsSection testimonials={formattedTestimonials} />
       <PricingSection />
