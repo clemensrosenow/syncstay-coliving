@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, Map, Home, Heart, ArrowRight } from 'lucide-react'
+import { Users, Home, Heart, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,23 +14,23 @@ const features = [
     icon: Users,
     gradient: 'from-blue-400 via-blue-500 to-indigo-600',
     title: 'KI-Matching',
-    subtitle: 'Dein perfekter Reisepartner',
+    subtitle: 'Menschen, die wirklich zu dir passen',
     description:
-      'Unser Algorithmus analysiert über 40 Parameter – von Schlafzeiten über Arbeitsintensität bis hin zu Persönlichkeitstypen. Finde Mitreisende, die wirklich zu dir passen.',
+      'Unser Algorithmus analysiert über 40 Parameter – von Schlafzeiten über Arbeitsintensität bis hin zu Persönlichkeitstypen. Finde Mitbewohner und Pods, die wirklich zu dir passen.',
     bullets: ['Arbeitsstil-Kompatibilität', 'Lifestyle-Matching', 'Gemeinsame Interessen', 'Sprachpräferenzen'],
     cta: 'Matches entdecken',
     to: '/search',
   },
   {
-    id: 'trip',
-    icon: Map,
+    id: 'community',
+    icon: Heart,
     gradient: 'from-emerald-400 via-teal-500 to-cyan-600',
-    title: 'Trip Planner',
-    subtitle: 'Deine Route, automatisch optimiert',
+    title: 'Community Fit',
+    subtitle: 'Ankommen mit den richtigen Menschen',
     description:
-      'Plane Multi-Destination-Routen innerhalb deines Budgets. Visa-Checker, Saisonpreise, Coworking-Verfügbarkeit – alles in einem Tool.',
-    bullets: ['Multi-Destination-Routen', 'Budget-Optimierung', 'Visa-Checker', 'Coworking-Finder'],
-    cta: 'Route planen',
+      'Sieh vorab, wer in einem Pod lebt, wie die Gruppe arbeitet und welche Stimmung vor Ort entsteht. So buchst du nicht nur eine Unterkunft, sondern ein Umfeld, das wirklich passt.',
+    bullets: ['Pod-Profile im Voraus', 'Gemeinsame Interessen', 'Arbeitsrhythmus sichtbar', 'Mehr Vertrauen vor der Buchung'],
+    cta: 'Community entdecken',
     to: '/search',
   },
   {
@@ -40,7 +40,7 @@ const features = [
     title: 'Shared Stay',
     subtitle: 'Günstiger wohnen, besser vernetzen',
     description:
-      'Teile Apartments mit geprüften Mitreisenden. Dynamische Preisoptimierung, faire Kostenaufteilung und transparente Abrechnung ohne versteckte Gebühren.',
+      'Teile Apartments mit geprüften Community-Mitgliedern. Dynamische Preisoptimierung, faire Kostenaufteilung und transparente Abrechnung ohne versteckte Gebühren.',
     bullets: ['Verifizierte Partner', 'Fair-Split Abrechnung', 'Flexible Laufzeiten', 'Notfall-Support 24/7'],
     cta: 'Stays entdecken',
     to: '/search',
@@ -61,7 +61,7 @@ export function FeaturesSection() {
             Alles, was du als Nomade brauchst
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Von der Partnersuche bis zur Unterkunft – SyncStay begleitet dich auf jeder Etappe.
+            Von passenden Menschen bis zur richtigen Unterkunft begleitet dich SyncStay bei jedem Aufenthalt.
           </p>
         </div>
 

@@ -1,26 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star, TrendingUp } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
 import type { AvailableLocation, AvailableMonth } from '@/app/search/lib/types'
 import SearchUI from '@/app/search/SearchUI'
-
-const categories = [
-  { emoji: '🏖️', label: 'Beach & Meer' },
-  { emoji: '🌆', label: 'City-Life' },
-  { emoji: '🌿', label: 'Natur & Cowork' },
-  { emoji: '🗺️', label: 'Abenteuer' },
-  { emoji: '🎉', label: 'Netzwerken' },
-  { emoji: '🧘', label: 'Fokus & Wellness' },
-  { emoji: '🏔️', label: 'Berge' },
-  { emoji: '🍜', label: 'Kulinarik' },
-]
 
 export function HeroSection({
   availableLocations,
@@ -29,8 +15,6 @@ export function HeroSection({
   availableLocations: AvailableLocation[]
   availableMonths: AvailableMonth[]
 }) {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
-
   return (
     <section id="hero" className="relative overflow-hidden pt-16 bg-background">
       {/* Background blobs */}
@@ -81,8 +65,8 @@ export function HeroSection({
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-muted-foreground text-xl mb-8 max-w-xl leading-relaxed"
             >
-              Remote, aber nie allein. KI-Matching, Multi-Destination-Trips und
-              SharedStay-Preisoptimierung – alles in einer Plattform.
+              Remote, aber nie allein. KI-Matching, kuratierte Co-Living-Stays und
+              faire Shared-Stay-Preise in einer Plattform.
             </motion.p>
 
             {/* Search bar */}

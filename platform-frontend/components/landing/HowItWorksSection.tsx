@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { UserCircle, Sparkles, Map, Plane } from 'lucide-react'
+import { UserCircle, Sparkles, Home, Plane } from 'lucide-react'
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 
@@ -10,25 +10,25 @@ const steps = [
     number: '01',
     icon: UserCircle,
     title: 'Profil erstellen',
-    description: 'Gib deinen Arbeitsstil, deine Interessen und Reisepräferenzen an. Unser Persönlichkeitstest findet in 5 Minuten deinen Nomaden-Typ.',
+    description: 'Gib deinen Arbeitsstil, deine Interessen und Wohnpräferenzen an. Unser Persönlichkeitstest findet in 5 Minuten deinen Nomaden-Typ.',
   },
   {
     number: '02',
     icon: Sparkles,
     title: 'KI matcht dich',
-    description: 'Der Algorithmus analysiert 40+ Parameter und schlägt dir kompatible Mitreisende, passende Coworkings und optimale Destinationen vor.',
+    description: 'Der Algorithmus analysiert 40+ Parameter und schlägt dir kompatible Mitbewohner, passende Pods und geeignete Coworking-Umfelder vor.',
   },
   {
     number: '03',
-    icon: Map,
-    title: 'Route planen',
-    description: 'Nutze den Trip Planner für Multi-Destination-Routen. Budget, Visa, Klima und Unterkunft werden automatisch berücksichtigt.',
+    icon: Home,
+    title: 'Pod auswählen',
+    description: 'Vergleiche verfügbare Stays, prüfe Preis, Community und Ausstattung und finde den Ort, der zu deinem nächsten Monat passt.',
   },
   {
     number: '04',
     icon: Plane,
-    title: 'Gemeinsam reisen',
-    description: 'Bucht zusammen, teilt die Kosten fair und verbindet euch mit anderen Nomaden an jedem Ort der Welt.',
+    title: 'Einziehen & vernetzen',
+    description: 'Buche deinen Aufenthalt, teile die Kosten fair und starte vor Ort direkt mit einer passenden Community.',
   },
 ]
 
@@ -37,12 +37,12 @@ export function HowItWorksSection() {
     <section id="how-it-works" className="py-24 bg-muted/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">So funktioniert's</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">So funktioniert&apos;s</p>
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            In 4 Schritten zum perfekten Trip
+            In 4 Schritten zum passenden Aufenthalt
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Von der Registrierung bis zur gemeinsamen Reise – einfach, schnell, intelligent.
+            Von der Registrierung bis zum Einzug in deinen Pod - einfach, schnell, intelligent.
           </p>
         </div>
 

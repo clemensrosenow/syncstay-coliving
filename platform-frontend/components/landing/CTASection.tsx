@@ -39,11 +39,7 @@ export function CTASection() {
 
               <p className="text-background/70 text-lg leading-relaxed mb-8 max-w-md">
                 Schließe dich tausenden digitalen Nomaden an. Finde deinen perfekten
-                Reisepartner – der Algorithmus übernimmt den Rest.
-              </p>
-
-              <p className="text-background/50 text-sm mb-10">
-                Keine Kreditkarte · Keine Mindestlaufzeit · Sofort loslegen
+                Pod und die passenden Mitbewohner – der Algorithmus übernimmt den Rest.
               </p>
 
               <motion.div
@@ -59,7 +55,7 @@ export function CTASection() {
                   className="inline-flex items-center gap-3 bg-primary text-primary-foreground font-bold px-10 py-8 rounded-full hover:bg-primary/90 transition-colors shadow-2xl shadow-primary/30 text-lg"
                 >
                   <Link href="/search">
-                    Jetzt deine Reise planen
+                    Jetzt Aufenthalt finden
                     <ArrowRight size={20} />
                   </Link>
                 </Button>
@@ -72,7 +68,7 @@ export function CTASection() {
                 { icon: '🌍', value: '69', label: 'Länder', sub: 'weltweit aktiv' },
                 { icon: '🤝', value: '2.400+', label: 'Matches', sub: 'bisher vermittelt' },
                 { icon: '⭐', value: '4.9/5', label: 'Bewertung', sub: 'von Nutzern' },
-                { icon: '✈️', value: '890+', label: 'Trips', sub: 'erfolgreich geplant' },
+                { icon: '🏠', value: '890+', label: 'Stays', sub: 'erfolgreich gebucht' },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}
