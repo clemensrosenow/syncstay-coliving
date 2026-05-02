@@ -29,6 +29,13 @@ app.add_middleware(
 openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 DB_URL = os.getenv("DATABASE_URL")
 
+class EmbedProfilesRequest(BaseModel):
+    user_ids: List[str]
+
+class EmbedProfilesResponse(BaseModel):
+    processed: int
+    failed: int
+
 class PropertyMatchRequest(BaseModel):
     active_user_id: str
     property_id: str
@@ -162,6 +169,79 @@ async def generate_explanation(active_semantic: str, members_semantics: dict) ->
         result = {"summary": response.choices[0].message.content.strip(), "member_highlights": {}}
 
     return result
+
+def _chunk_list(lst: list, size: int) -> list:
+    return [lst[i : i + size] for i in range(0, len(lst), size)]
+
+
+@app.post("/api/embed-profiles", response_model=EmbedProfilesResponse)
+async def embed_profiles(request: EmbedProfilesRequest):
+    if not request.user_ids:
+        return EmbedProfilesResponse(processed=0, failed=0)
+
+    try:
+        conn = await get_db_connection()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
+
+    processed = 0
+    failed = 0
+
+    try:
+        async with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+            await cur.execute(
+                """
+                SELECT
+                    up.id,
+                    up.birthday,
+                    up.chronotype,
+                    up.work_start_hour,
+                    up.work_end_hour,
+                    up.work_style,
+                    up.cleanliness,
+                    up.social_energy,
+                    up.bio,
+                    COALESCE(
+                        (
+                            SELECT array_agg(t.label)
+                            FROM user_tags ut
+                            JOIN tags t ON ut.tag_id = t.id
+                            WHERE ut.profile_id = up.id
+                        ),
+                        ARRAY[]::text[]
+                    ) AS tags
+                FROM user_profiles up
+                WHERE up.id = ANY(%s)
+                """,
+                (request.user_ids,),
+            )
+            profiles = await cur.fetchall()
+        await conn.commit()
+
+        for chunk in _chunk_list(profiles, 50):
+            inputs = [format_profile_to_text(p, p["tags"] or []) for p in chunk]
+            try:
+                response = await openai_client.embeddings.create(
+                    model="text-embedding-3-large",
+                    dimensions=3072,
+                    input=inputs,
+                )
+                async with conn.cursor() as cur:
+                    for i, profile in enumerate(chunk):
+                        await cur.execute(
+                            "UPDATE user_profiles SET embedding = %s WHERE id = %s",
+                            (response.data[i].embedding, profile["id"]),
+                        )
+                await conn.commit()
+                processed += len(chunk)
+            except Exception:
+                await conn.rollback()
+                failed += len(chunk)
+    finally:
+        await conn.close()
+
+    return EmbedProfilesResponse(processed=processed, failed=failed)
+
 
 @app.post("/api/property-match", response_model=PropertyMatchResponse)
 async def get_property_match(request: PropertyMatchRequest):
