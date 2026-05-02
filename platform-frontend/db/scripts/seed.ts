@@ -5,7 +5,8 @@
  *
  * Insertion order (dependency-safe):
  *  1. locations
- *  2. properties
+ *  2. flights
+ *  3. properties
  *  3. amenities
  *  4. propertyAmenities
  *  5. tags
@@ -28,6 +29,7 @@ import { neon } from "@neondatabase/serverless";
 import { faker } from "@faker-js/faker";
 import * as schema from "../schema";
 import * as authSchema from "../../auth-schema";
+import rawFlights from "./raw_flights.json";
 
 // ── Deterministic seed ────────────────────────────────────────────
 faker.seed(42);
@@ -99,6 +101,7 @@ async function clearExistingData() {
   await db.delete(schema.propertyAmenities);
   await db.delete(schema.amenities);
   await db.delete(schema.properties);
+  await db.delete(schema.flights);
   await db.delete(schema.languages);
   await db.delete(schema.tags);
   await db.delete(schema.locations);
@@ -187,6 +190,24 @@ function buildLocations() {
     { id: uuid(), name: "Athens", country: "Greece", slug: "athens" },
     { id: uuid(), name: "Split", country: "Croatia", slug: "split" },
   ];
+}
+
+// ── 2. Flights ────────────────────────────────────────────────────
+
+function buildFlights(
+  locations: ReturnType<typeof buildLocations>
+): (typeof schema.flights.$inferInsert)[] {
+  const locByCity = new Map(locations.map((l) => [l.name, l.id]));
+  return rawFlights.map((f) => ({
+    id: uuid(),
+    locationId: locByCity.get(f.city)!,
+    origin: f.from,
+    destination: f.to,
+    airline: f.airline,
+    priceEuros: f.price,
+    durationHours: f.duration,
+    stops: f.stops,
+  }));
 }
 
 // ── 2. Property data ──────────────────────────────────────────────
@@ -1255,7 +1276,13 @@ async function seed() {
     .values([...locationData]);
   await (overwrite ? locationInsert : locationInsert.onConflictDoNothing());
 
-  // 2. Properties
+  // 2. Flights
+  const flightData = buildFlights(locationData);
+  console.log(`✈️  Inserting ${flightData.length} flights...`);
+  const flightInsert = db.insert(schema.flights).values(flightData);
+  await (overwrite ? flightInsert : flightInsert.onConflictDoNothing());
+
+  // 3. Properties
   const propertyData = buildProperties(locationData);
   console.log(`🏠 Inserting ${propertyData.length} properties...`);
   const propertyInsert = db.insert(schema.properties).values(propertyData);
@@ -1407,6 +1434,7 @@ async function seed() {
 
   console.log("\n✅ Seed complete!");
   console.log(`   Locations   : ${locationData.length}`);
+  console.log(`   Flights     : ${flightData.length}`);
   console.log(`   Properties  : ${propertyData.length}`);
   console.log(`   Amenities   : ${amenityData.length}`);
   console.log(`   Tags        : ${tagData.length}`);
