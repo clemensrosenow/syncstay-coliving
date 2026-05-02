@@ -74,7 +74,7 @@ export default function PodMonthCard({ pod, minOccupancy, totalRooms, isSignedIn
 
       <PropertyBookingProgress property={searchProperty} isSignedIn={isSignedIn} displayMode="text" />
 
-      <p className="text-muted-foreground line-clamp-3 text-sm leading-6 -mt-2 mb-4">
+      <p className="text-muted-foreground  text-sm leading-6 -mt-2 mb-4">
         {pod.compatibilitySummary}
       </p>
 
@@ -105,7 +105,7 @@ export default function PodMonthCard({ pod, minOccupancy, totalRooms, isSignedIn
                       <span className="text-xs font-normal text-stone-400">{member.age}</span>
                     </ItemTitle>
                     <ItemDescription>{jobLocation}</ItemDescription>
-                    <ItemDescription className="line-clamp-2 mt-1.5 text-xs">{member.bio}</ItemDescription>
+                    <ItemDescription className="line-clamp-2 mt-1.5 text-xs italic">{member.bio}</ItemDescription>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {ChronotypeIcon ? (
                         <Badge variant="outline">
@@ -129,6 +129,9 @@ export default function PodMonthCard({ pod, minOccupancy, totalRooms, isSignedIn
                         <Badge key={`${member.userId}-${tag}`} variant={activeUserTags.includes(tag) ? 'secondary' : 'outline'}>{tag}</Badge>
                       ))}
                     </div>
+                    {member.compatibilityNote ? (
+                      <p className="text-muted-foreground mt-3 text-xs leading-5">{member.compatibilityNote}</p>
+                    ) : null}
                   </ItemContent>
                 </Item>
               </>

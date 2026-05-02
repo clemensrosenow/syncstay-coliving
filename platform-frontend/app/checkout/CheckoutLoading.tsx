@@ -288,7 +288,7 @@ export default function CheckoutLoading() {
               >
                 {errorKey === 'already_booked' ? (
                   <Link
-                    href="/account/bookings?tab=pending"
+                    href="/account/bookings"
                     className="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-700"
                   >
                     View your bookings

@@ -3,7 +3,6 @@ import { and, asc, eq, inArray } from 'drizzle-orm'
 
 import { users } from '@/auth-schema'
 import { auth } from '@/lib/auth'
-import { rankPods } from '@/lib/data/rank-pods'
 import { db } from '@/db/drizzle'
 import {
   amenities,
@@ -223,38 +222,47 @@ export async function getPropertyDetailData(input: {
       workStyle: row.workStyle,
       tags: row.profileId ? (tagsByProfileId.get(row.profileId) ?? []) : [],
       status: row.status,
+      compatibilityNote: null,
     })
     map.set(row.podId, existingMembers)
     return map
   }, new Map())
 
-  const rankingsByMonth = new Map<string, number | null>()
+  const rankingsByMonth = new Map<string, { matchScore: number | null; explanation: string | null; memberHighlights: Record<string, string> }>()
 
   if (activeUserId && podRows.length > 0) {
-    const rankingResults = await Promise.all(
+    const aiBackendUrl = process.env.AI_BACKEND_URL ?? 'http://localhost:8000'
+    const aiResults = await Promise.all(
       podRows.map(async (pod) => {
         const monthValue = toMonthValue(pod.month)
-
         try {
-          const rankingResponse = await rankPods({
-            activeUserId,
-            locationIds: [propertyRow.locationId],
-            month: `${monthValue}-01`,
+          const res = await fetch(`${aiBackendUrl}/api/property-match`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              active_user_id: activeUserId,
+              property_id: propertyRow.id,
+              month: `${monthValue}-01`,
+            }),
+            cache: 'no-store',
           })
-          const match = rankingResponse.rankings.find(
-            (ranking) => ranking.property_id === propertyRow.id
-          )
-
-          return [monthValue, match ? clampMatchPercentage(match.match_score) : null] as const
+          if (!res.ok) throw new Error(`AI backend ${res.status}`)
+          const data = await res.json()
+          const memberHighlights: Record<string, string> = {}
+          if (Array.isArray(data.member_highlights)) {
+            for (const h of data.member_highlights) {
+              memberHighlights[h.name] = h.highlight
+            }
+          }
+          return [monthValue, { matchScore: clampMatchPercentage(data.match_score ?? 0), explanation: data.explanation ?? null, memberHighlights }] as const
         } catch (error) {
-          console.error(`Failed to rank property ${propertyRow.id} for ${monthValue}:`, error)
-          return [monthValue, null] as const
+          console.error(`AI match failed for ${propertyRow.id}/${monthValue}:`, error)
+          return [monthValue, { matchScore: null, explanation: null, memberHighlights: {} }] as const
         }
       })
     )
-
-    for (const [monthValue, matchScore] of rankingResults) {
-      rankingsByMonth.set(monthValue, matchScore)
+    for (const [monthValue, result] of aiResults) {
+      rankingsByMonth.set(monthValue, result)
     }
   }
 
@@ -275,7 +283,13 @@ export async function getPropertyDetailData(input: {
       condition === 'LOCKED' || condition === 'FULL'
         ? 0
         : Math.max(propertyRow.minOccupancy - memberCount, 0)
-    const matchScore = rankingsByMonth.get(monthValue) ?? null
+    const aiResult = rankingsByMonth.get(monthValue) ?? { matchScore: null, explanation: null, memberHighlights: {} }
+    const matchScore = aiResult.matchScore
+
+    const membersWithNotes = members.map((m) => ({
+      ...m,
+      compatibilityNote: aiResult.memberHighlights[m.name] ?? null,
+    }))
 
     return {
       monthValue,
@@ -287,8 +301,8 @@ export async function getPropertyDetailData(input: {
       membersNeededToLock,
       spotsLeft,
       matchScore,
-      members,
-      compatibilitySummary: getCompatibilitySummary({
+      members: membersWithNotes,
+      compatibilitySummary: aiResult.explanation ?? getCompatibilitySummary({
         activeUser,
         members,
         matchScore,

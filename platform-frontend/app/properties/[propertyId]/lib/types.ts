@@ -34,6 +34,7 @@ export interface PropertyDetailMember {
   workStyle: string | null
   tags: string[]
   status: 'PENDING' | 'CONFIRMED'
+  compatibilityNote: string | null
 }
 
 export interface ActiveUserContext {

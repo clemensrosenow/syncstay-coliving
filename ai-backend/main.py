@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import json
 import os
 from datetime import date
 from typing import List, Optional
@@ -31,9 +34,14 @@ class PropertyMatchRequest(BaseModel):
     property_id: str
     month: date
 
+class MemberHighlight(BaseModel):
+    name: str
+    highlight: str
+
 class PropertyMatchResponse(BaseModel):
     match_score: float
     explanation: str
+    member_highlights: List[MemberHighlight]
 
 def calculate_age(birthday: date | None) -> int | None:
     if not birthday:
@@ -115,33 +123,45 @@ async def get_db_connection():
     await register_vector_async(conn)
     return conn
 
-async def generate_explanation(active_semantic: str, members_semantics: dict) -> str:
+async def generate_explanation(active_semantic: str, members_semantics: dict) -> dict:
+    member_names = list(members_semantics.keys())
     members_text = ""
     for name, text in members_semantics.items():
         members_text += f"-- Member: {name}\n{text}\n\n"
 
     prompt = (
-        f"You are a premium coliving matchmaking AI.\n"
-        f"Based on the signed-in user's profile and the pending members listed below,\n"
-        f"write exactly one short, highly readable sentence explaining why the signed-in user is a strong fit for those pending members.\n"
-        f"Compare the signed-in user directly with the pending members using shared household habits, lifestyle, interests, or work styles.\n"
-        f"Do not describe the fit as being with a pod or a generic group dynamic.\n"
-        f"Speak directly to the signed-in user in a warm, simple tone (e.g., 'You and the pending members all value...').\n"
-        f"Keep the language very concise without complex structures.\n\n"
-        f"SIGNED-IN USER PROFILE:\n{active_semantic}\n\n"
-        f"PENDING MEMBERS:\n{members_text}"
+        f"You are a warm, friendly coliving matchmaking AI.\n"
+        f"You are given the profile of a signed-in user and the profiles of the existing members in a pod.\n\n"
+        f"Return a JSON object with exactly these keys:\n"
+        f"1. \"summary\": 2-3 short, simple sentences directly to the signed-in user about why they'd enjoy living with these people. "
+        f"Keep it casual and easy to read. Max 50 words total. Speak in second person ('you'). No jargon, no bullet points.\n"
+        f"2. \"member_highlights\": an object where each key is a member's exact name and the value is ONE short sentence (max 15 words) "
+        f"spoken directly to the user about why they'd enjoy living with that person. "
+        f"Be specific, personal, and appealing — e.g. 'You both love morning runs and deep-focus work' or 'Their evening energy balances your early-bird rhythm nicely'. "
+        f"Always use 'you' and 'your'. Never use generic filler like 'great match' or 'compatible'.\n\n"
+        f"Member names (use exactly): {member_names}\n\n"
+        f"Do not refer to a 'pod', a 'group', or a 'dynamic'.\n\n"
+        f"SIGNED-IN USER:\n{active_semantic}\n\n"
+        f"EXISTING MEMBERS:\n{members_text}"
     )
-    
+
     response = await openai_client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are a concise matchmaking AI that writes simple, short explanations comparing the signed-in user with the pending members. Never describe the fit as being with a pod."},
+            {"role": "system", "content": "You are a warm coliving matchmaking AI. Return valid JSON only. No markdown fences."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=100,
-        temperature=0.7
+        max_tokens=400,
+        temperature=0.75,
+        response_format={"type": "json_object"}
     )
-    return response.choices[0].message.content.strip()
+
+    try:
+        result = json.loads(response.choices[0].message.content)
+    except (json.JSONDecodeError, TypeError):
+        result = {"summary": response.choices[0].message.content.strip(), "member_highlights": {}}
+
+    return result
 
 @app.post("/api/property-match", response_model=PropertyMatchResponse)
 async def get_property_match(request: PropertyMatchRequest):
@@ -200,22 +220,27 @@ async def get_property_match(request: PropertyMatchRequest):
                     up.cleanliness,
                     up.social_energy,
                     up.bio,
-                    (1 - (up.embedding <=> %s::vector)) AS similarity_score,
+                    CASE
+                        WHEN up.embedding IS NOT NULL
+                        THEN 1 - (up.embedding <=> %s::vector)
+                        ELSE NULL
+                    END AS similarity_score,
                     COALESCE(
                         (
                             SELECT array_agg(t.label)
-                            FROM user_tags ut 
-                            JOIN tags t ON ut.tag_id = t.id 
+                            FROM user_tags ut
+                            JOIN tags t ON ut.tag_id = t.id
                             WHERE ut.profile_id = up.id
-                        ), 
+                        ),
                         '{}'
                     ) AS tags
                 FROM pods p
-                JOIN pod_members pm ON pm.pod_id = p.id AND pm.status = 'PENDING'
+                JOIN pod_members pm ON pm.pod_id = p.id AND pm.status IN ('PENDING', 'CONFIRMED')
                 JOIN users u ON pm.user_id = u.id
-                JOIN user_profiles up ON up.user_id = u.id AND up.embedding IS NOT NULL
+                LEFT JOIN user_profiles up ON up.user_id = u.id
                 WHERE p.property_id = %s AND p.month = %s
-            ''', (active_embedding, request.property_id, request.month))
+                  AND pm.user_id != %s
+            ''', (active_embedding, request.property_id, request.month, request.active_user_id))
             
             rows = await cur.fetchall()
 
@@ -225,12 +250,13 @@ async def get_property_match(request: PropertyMatchRequest):
     if not rows:
         return PropertyMatchResponse(
             match_score=0.0,
-            explanation="This month is still wide open. You could be the first to start a pod here!"
+            explanation="This month is still wide open. You could be the first to start a pod here!",
+            member_highlights=[]
         )
 
     scores = []
     members_semantics = {}
-    
+
     for r in rows:
         score = r['similarity_score'] or 0.0
         scores.append(score)
@@ -238,10 +264,16 @@ async def get_property_match(request: PropertyMatchRequest):
         members_semantics[r['user_name']] = member_semantic
 
     avg_score = sum(scores) / len(scores)
-    
-    explanation = await generate_explanation(active_semantic, members_semantics)
-    
+
+    ai_result = await generate_explanation(active_semantic, members_semantics)
+
+    highlights = [
+        MemberHighlight(name=name, highlight=text)
+        for name, text in ai_result.get("member_highlights", {}).items()
+    ]
+
     return PropertyMatchResponse(
         match_score=avg_score,
-        explanation=explanation
+        explanation=ai_result.get("summary", ""),
+        member_highlights=highlights
     )
