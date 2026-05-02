@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 
 import BookingSidebar from './components/BookingSidebar'
+import FlightsSection from './components/FlightsSection'
 import PodsOverview from './components/PodsOverview'
 import PropertyAmenities from './components/PropertyAmenities'
 import PropertyDescription from './components/PropertyDescription'
@@ -37,6 +38,10 @@ export default async function PropertyDetailPage(props: PropertyDetailPageProps)
               totalRooms={data.property.totalRooms}
               isSignedIn={data.activeUserId !== null}
               activeUserTags={data.activeUserContext?.tags ?? []}
+            />
+            <FlightsSection
+              flights={data.flights}
+              locationName={data.property.locationName}
             />
           </div>
           <BookingSidebar

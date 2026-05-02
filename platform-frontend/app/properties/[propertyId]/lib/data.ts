@@ -7,6 +7,7 @@ import { rankPods } from '@/lib/data/rank-pods'
 import { db } from '@/db/drizzle'
 import {
   amenities,
+  flights,
   locations,
   podMembers,
   pods,
@@ -26,7 +27,7 @@ import {
   parseMonthParam,
   toMonthValue,
 } from './helpers'
-import { type ActiveUserContext, type PropertyDetailData, type PropertyDetailMember } from './types'
+import { type ActiveUserContext, type PropertyDetailData, type PropertyDetailMember, type PropertyFlight } from './types'
 
 async function getActiveUserContext(activeUserId: string | null): Promise<ActiveUserContext | null> {
   if (!activeUserId) {
@@ -109,7 +110,7 @@ export async function getPropertyDetailData(input: {
   }
 
   const activeUserId = session?.user?.id ?? null
-  const [amenityRows, podRows, activeUser] = await Promise.all([
+  const [amenityRows, podRows, activeUser, flightRows] = await Promise.all([
     db
       .select({
         label: amenities.label,
@@ -129,6 +130,19 @@ export async function getPropertyDetailData(input: {
           .orderBy(asc(pods.month))
       : Promise.resolve([]),
     getActiveUserContext(activeUserId),
+    db
+      .select({
+        id: flights.id,
+        origin: flights.origin,
+        destination: flights.destination,
+        airline: flights.airline,
+        priceEuros: flights.priceEuros,
+        durationHours: flights.durationHours,
+        stops: flights.stops,
+      })
+      .from(flights)
+      .where(eq(flights.locationId, propertyRow.locationId))
+      .orderBy(asc(flights.priceEuros)),
   ])
 
   const podIds = podRows.map((pod) => pod.id)
@@ -303,6 +317,7 @@ export async function getPropertyDetailData(input: {
     },
     pods: podMonths,
     availableMonths,
+    flights: flightRows,
     activeUserId,
     activeUserContext: activeUser,
     selectedMonthValue,

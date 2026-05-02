@@ -65,6 +65,7 @@ export interface PropertyDetailData {
   property: PropertyDetailProperty
   pods: PropertyPodMonth[]
   availableMonths: PropertyAvailableMonth[]
+  flights: PropertyFlight[]
   activeUserId: string | null
   activeUserContext: ActiveUserContext | null
   selectedMonthValue: string | null
@@ -77,4 +78,14 @@ export interface BookingCtaContent {
   body: string
   buttonLabel: string
   disabled: boolean
+}
+
+export interface PropertyFlight {
+  id: string
+  origin: string
+  destination: string
+  airline: string
+  priceEuros: number
+  durationHours: number
+  stops: number
 }
