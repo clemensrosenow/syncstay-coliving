@@ -1,0 +1,51 @@
+[
+  { "id": 1, "from": "FRA", "to": "LIS", "city": "Lisbon", "airline": "Lufthansa", "price": 135, "duration": 3.2, "stops": 0 },
+  { "id": 2, "from": "FRA", "to": "LIS", "city": "Lisbon", "airline": "TAP", "price": 120, "duration": 3.1, "stops": 0 },
+  { "id": 3, "from": "FRA", "to": "LIS", "city": "Lisbon", "airline": "KLM", "price": 160, "duration": 5.5, "stops": 1 },
+
+  { "id": 4, "from": "FRA", "to": "OPO", "city": "Porto", "airline": "Ryanair", "price": 90, "duration": 3.0, "stops": 0 },
+  { "id": 5, "from": "FRA", "to": "OPO", "city": "Porto", "airline": "Lufthansa", "price": 140, "duration": 3.3, "stops": 0 },
+  { "id": 6, "from": "FRA", "to": "OPO", "city": "Porto", "airline": "Air France", "price": 155, "duration": 5.2, "stops": 1 },
+
+  { "id": 7, "from": "FRA", "to": "VLC", "city": "Valencia", "airline": "Eurowings", "price": 110, "duration": 2.5, "stops": 0 },
+  { "id": 8, "from": "FRA", "to": "VLC", "city": "Valencia", "airline": "Lufthansa", "price": 125, "duration": 2.4, "stops": 0 },
+  { "id": 9, "from": "FRA", "to": "VLC", "city": "Valencia", "airline": "Iberia", "price": 145, "duration": 4.8, "stops": 1 },
+
+  { "id": 10, "from": "FRA", "to": "BCN", "city": "Barcelona", "airline": "Vueling", "price": 95, "duration": 2.2, "stops": 0 },
+  { "id": 11, "from": "FRA", "to": "BCN", "city": "Barcelona", "airline": "Lufthansa", "price": 120, "duration": 2.1, "stops": 0 },
+  { "id": 12, "from": "FRA", "to": "BCN", "city": "Barcelona", "airline": "Air France", "price": 150, "duration": 4.5, "stops": 1 },
+
+  { "id": 13, "from": "FRA", "to": "AGP", "city": "Málaga", "airline": "Ryanair", "price": 85, "duration": 2.9, "stops": 0 },
+  { "id": 14, "from": "FRA", "to": "AGP", "city": "Málaga", "airline": "Lufthansa", "price": 130, "duration": 3.0, "stops": 0 },
+  { "id": 15, "from": "FRA", "to": "AGP", "city": "Málaga", "airline": "KLM", "price": 160, "duration": 5.1, "stops": 1 },
+
+  { "id": 16, "from": "FRA", "to": "PMI", "city": "Palma de Mallorca", "airline": "Eurowings", "price": 100, "duration": 2.1, "stops": 0 },
+  { "id": 17, "from": "FRA", "to": "PMI", "city": "Palma de Mallorca", "airline": "Lufthansa", "price": 115, "duration": 2.0, "stops": 0 },
+  { "id": 18, "from": "FRA", "to": "PMI", "city": "Palma de Mallorca", "airline": "Vueling", "price": 90, "duration": 2.2, "stops": 0 },
+
+  { "id": 19, "from": "FRA", "to": "ATH", "city": "Athens", "airline": "Aegean", "price": 180, "duration": 3.5, "stops": 0 },
+  { "id": 20, "from": "FRA", "to": "ATH", "city": "Athens", "airline": "Lufthansa", "price": 210, "duration": 3.4, "stops": 0 },
+  { "id": 21, "from": "FRA", "to": "ATH", "city": "Athens", "airline": "Turkish Airlines", "price": 190, "duration": 5.8, "stops": 1 },
+
+  { "id": 22, "from": "FRA", "to": "SPU", "city": "Split", "airline": "Croatia Airlines", "price": 160, "duration": 2.0, "stops": 0 },
+  { "id": 23, "from": "FRA", "to": "SPU", "city": "Split", "airline": "Lufthansa", "price": 175, "duration": 2.1, "stops": 0 },
+  { "id": 24, "from": "FRA", "to": "SPU", "city": "Split", "airline": "Austrian Airlines", "price": 185, "duration": 4.5, "stops": 1 },
+
+  { "id": 25, "from": "FRA", "to": "LIS", "city": "Lisbon", "airline": "Eurowings", "price": 105, "duration": 3.3, "stops": 0 },
+  { "id": 26, "from": "FRA", "to": "BCN", "city": "Barcelona", "airline": "Ryanair", "price": 80, "duration": 2.3, "stops": 0 },
+  { "id": 27, "from": "FRA", "to": "PMI", "city": "Palma de Mallorca", "airline": "Ryanair", "price": 75, "duration": 2.1, "stops": 0 },
+  { "id": 28, "from": "FRA", "to": "AGP", "city": "Málaga", "airline": "Eurowings", "price": 95, "duration": 3.1, "stops": 0 },
+  { "id": 29, "from": "FRA", "to": "ATH", "city": "Athens", "airline": "Eurowings", "price": 170, "duration": 3.6, "stops": 0 },
+  { "id": 30, "from": "FRA", "to": "SPU", "city": "Split", "airline": "Eurowings", "price": 150, "duration": 2.2, "stops": 0 },
+
+  { "id": 31, "from": "FRA", "to": "OPO", "city": "Porto", "airline": "TAP", "price": 115, "duration": 3.2, "stops": 0 },
+  { "id": 32, "from": "FRA", "to": "VLC", "city": "Valencia", "airline": "Ryanair", "price": 85, "duration": 2.6, "stops": 0 },
+  { "id": 33, "from": "FRA", "to": "BCN", "city": "Barcelona", "airline": "Iberia", "price": 110, "duration": 2.2, "stops": 0 },
+  { "id": 34, "from": "FRA", "to": "AGP", "city": "Málaga", "airline": "Vueling", "price": 88, "duration": 2.8, "stops": 0 },
+  { "id": 35, "from": "FRA", "to": "PMI", "city": "Palma de Mallorca", "airline": "Condor", "price": 105, "duration": 2.0, "stops": 0 },
+  { "id": 36, "from": "FRA", "to": "ATH", "city": "Athens", "airline": "Condor", "price": 175, "duration": 3.5, "stops": 0 },
+  { "id": 37, "from": "FRA", "to": "SPU", "city": "Split", "airline": "Condor", "price": 155, "duration": 2.1, "stops": 0 },
+  { "id": 38, "from": "FRA", "to": "LIS", "city": "Lisbon", "airline": "Air France", "price": 150, "duration": 5.0, "stops": 1 },
+  { "id": 39, "from": "FRA", "to": "OPO", "city": "Porto", "airline": "KLM", "price": 145, "duration": 5.3, "stops": 1 },
+  { "id": 40, "from": "FRA", "to": "VLC", "city": "Valencia", "airline": "Air France", "price": 140, "duration": 4.7, "stops": 1 }
+]

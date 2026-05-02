@@ -4,6 +4,7 @@ import {
   text,
   integer,
   smallint,
+  real,
   date,
   timestamp,
   uniqueIndex,
@@ -90,6 +91,23 @@ export const locations = pgTable("locations", {
   name: text("name").notNull(),
   country: text("country").notNull(),
   slug: text("slug").notNull().unique(),
+});
+
+// ── Flights ──────────────────────────────────────────────────────
+
+export const flights = pgTable("flights", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  locationId: text("location_id")
+    .references(() => locations.id)
+    .notNull(),
+  origin: text("origin").notNull(),
+  destination: text("destination").notNull(),
+  airline: text("airline").notNull(),
+  priceEuros: integer("price_euros").notNull(),
+  durationHours: real("duration_hours").notNull(),
+  stops: smallint("stops").default(0).notNull(),
 });
 
 // ── Properties ───────────────────────────────────────────────────
@@ -267,6 +285,7 @@ export const userProfilesRelations = relations(userProfiles, ({ one, many }) => 
 
 export const locationsRelations = relations(locations, ({ many }) => ({
   properties: many(properties),
+  flights: many(flights),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -344,6 +363,13 @@ export const podMembersRelations = relations(podMembers, ({ one, many }) => ({
     references: [users.id],
   }),
   testimonials: many(testimonials),
+}));
+
+export const flightsRelations = relations(flights, ({ one }) => ({
+  location: one(locations, {
+    fields: [flights.locationId],
+    references: [locations.id],
+  }),
 }));
 
 export const testimonialsRelations = relations(testimonials, ({ one }) => ({
