@@ -88,7 +88,10 @@ function PendingBookingCard({ booking }: { booking: BookingCard }) {
   )
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+    <article
+      id={`${booking.property.id}-${booking.monthValue}`}
+      className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-shadow target:border-emerald-300 target:ring-2 target:ring-emerald-100 target:shadow-emerald-100 target:shadow-md"
+    >
       <div className="border-b border-gray-100 bg-gray-50 px-6 py-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>

@@ -26,6 +26,7 @@
     "embla-carousel-wheel-gestures": "^8.1.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
+    "motion": "^12.38.0",
     "next": "16.2.3",
     "openai": "^6.34.0",
     "radix-ui": "^1.4.3",
