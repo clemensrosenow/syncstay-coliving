@@ -56,5 +56,7 @@ export async function prototypeLoginAction(
     secure: sessionCookie.attributes.secure,
   });
 
-  redirect("/search");
+  const redirectTo = formData.get("redirectTo")
+
+  redirect(typeof redirectTo === "string" && redirectTo.startsWith("/") ? redirectTo : "/search");
 }

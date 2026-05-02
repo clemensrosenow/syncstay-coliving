@@ -1,13 +1,25 @@
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+
 import SearchHeader from './components/SearchHeader'
 import SearchResults from './components/SearchResults'
 import { getSearchPageData } from './lib/data'
 import { type SearchPageProps } from './lib/types'
 import { parseSearchParams } from './lib/utils'
+import { auth } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
 export default async function SearchPage(props: SearchPageProps) {
+  const session = await auth.api.getSession({ headers: await headers() })
   const params = await props.searchParams
+
+  if (!session) {
+    const searchString = new URLSearchParams(params as Record<string, string>).toString()
+    const returnTo = `/search${searchString ? `?${searchString}` : ''}`
+    redirect(`/auth/sign-in?redirect=${encodeURIComponent(returnTo)}`)
+  }
+
   const parsedParams = parseSearchParams(params)
   const data = await getSearchPageData(parsedParams)
 

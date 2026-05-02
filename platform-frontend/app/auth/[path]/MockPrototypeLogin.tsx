@@ -32,6 +32,7 @@ type MockPrototypeLoginProps = {
     image: string | null;
     job: string | null;
   }[];
+  redirectTo?: string;
 };
 
 function getInitials(name: string) {
@@ -59,6 +60,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
 export function MockPrototypeLogin({
   mockUsers,
+  redirectTo,
 }: MockPrototypeLoginProps) {
   const [selectedUserId, setSelectedUserId] = useState<string>(
     mockUsers[0]?.id ?? "",
@@ -75,6 +77,7 @@ export function MockPrototypeLogin({
       </p>
       <form action={formAction}>
         <input type="hidden" name="userId" value={selectedUserId} />
+        {redirectTo && <input type="hidden" name="redirectTo" value={redirectTo} />}
         <div className="mt-6 space-y-2">
           <Label htmlFor="prototype-traveler">
             Select traveler
