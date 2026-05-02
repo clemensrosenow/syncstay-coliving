@@ -77,7 +77,7 @@ export function HowItWorksSection() {
     <section id="how-it-works" ref={containerRef} className="relative h-[250vh] bg-background">
       {/* Sticky container stays pinned to viewport while scrolling through 250vh */}
       <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
 
           {/* Header */}
           <div className="text-center mb-12 md:mb-16">

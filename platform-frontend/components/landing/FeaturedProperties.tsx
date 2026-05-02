@@ -59,7 +59,7 @@ export function FeaturedProperties({
 }) {
   return (
     <section className="bg-gradient-to-b from-background via-background to-muted/50 pt-4 pb-14 sm:pt-6 sm:pb-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Carousel
           opts={{
             align: 'start',
