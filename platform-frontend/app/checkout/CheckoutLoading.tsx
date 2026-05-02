@@ -1,11 +1,13 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
-import { Check } from 'lucide-react'
+import { AlertCircle, Check } from 'lucide-react'
 
 import { DotPattern } from '@/components/ui/dot-pattern'
+import { joinPod, type JoinPodResult } from './actions'
 
 const STEPS = [
   {
@@ -29,6 +31,29 @@ const STEPS = [
 const STEP_INTERVAL = 1200
 const SUCCESS_AT = STEPS.length * STEP_INTERVAL + 250
 const REDIRECT_AT = SUCCESS_AT + 2200
+
+const ERROR_MESSAGES: Record<Exclude<JoinPodResult, { ok: true }>['error'], { title: string; body: string }> = {
+  unauthorized: {
+    title: 'Sign in required',
+    body: 'You need to be signed in to book a pod.',
+  },
+  invalid_params: {
+    title: 'Invalid booking',
+    body: 'Something went wrong with your booking link. Please try again from the property page.',
+  },
+  not_found: {
+    title: 'Property not found',
+    body: 'This property or month is no longer available.',
+  },
+  already_booked: {
+    title: "You're already booked",
+    body: 'You already have a spot in this pod.',
+  },
+  pod_full: {
+    title: 'Pod is full',
+    body: 'All spots in this pod have been taken. Try a different month.',
+  },
+}
 
 function RingsLoader({ stepIndex }: { stepIndex: number }) {
   return (
@@ -88,26 +113,46 @@ export default function CheckoutLoading() {
   const month = searchParams.get('month')
 
   const [stepIndex, setStepIndex] = useState(0)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [phase, setPhase] = useState<'loading' | 'success' | 'error'>('loading')
+  const [errorKey, setErrorKey] = useState<Exclude<JoinPodResult, { ok: true }>['error'] | null>(null)
   const initialized = useRef(false)
 
   useEffect(() => {
     if (initialized.current) return
     initialized.current = true
 
+    if (!propertyId || !month) {
+      setPhase('error')
+      setErrorKey('invalid_params')
+      return
+    }
+
+    // Fire DB write immediately — runs in parallel with the animation
+    const bookingPromise = joinPod(propertyId, month)
+
+    // Step progression timers
     STEPS.forEach((_, i) => {
       if (i === 0) return
       setTimeout(() => setStepIndex(i), i * STEP_INTERVAL)
     })
 
-    setTimeout(() => setIsSuccess(true), SUCCESS_AT)
+    // After animation completes, resolve with DB result
+    setTimeout(async () => {
+      const result = await bookingPromise
+      if (!result.ok) {
+        setPhase('error')
+        setErrorKey(result.error)
+        return
+      }
 
-    const redirectUrl = propertyId && month
-      ? `/account/bookings?tab=pending#${propertyId}-${month}`
-      : '/account/bookings?tab=pending'
+      setPhase('success')
 
-    setTimeout(() => router.push(redirectUrl), REDIRECT_AT)
+      const redirectUrl = `/account/bookings?tab=pending#${propertyId}-${month}`
+      setTimeout(() => router.push(redirectUrl), REDIRECT_AT - SUCCESS_AT)
+    }, SUCCESS_AT)
   }, [router, propertyId, month])
+
+  const errorInfo = errorKey ? ERROR_MESSAGES[errorKey] : null
 
   return (
     <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-white">
@@ -115,7 +160,7 @@ export default function CheckoutLoading() {
 
       <div className="relative z-10 w-full max-w-sm px-6">
         <AnimatePresence mode="wait">
-          {!isSuccess ? (
+          {phase === 'loading' && (
             <motion.div
               key="loading"
               initial={{ opacity: 0, y: 16 }}
@@ -157,7 +202,9 @@ export default function CheckoutLoading() {
                 </div>
               </div>
             </motion.div>
-          ) : (
+          )}
+
+          {phase === 'success' && (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -191,6 +238,76 @@ export default function CheckoutLoading() {
                 <p className="text-base text-stone-500">
                   Your spot has been reserved in the pod.
                 </p>
+              </motion.div>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7, duration: 0.5 }}
+                className="text-sm text-stone-400"
+              >
+                Taking you to your bookings&hellip;
+              </motion.p>
+            </motion.div>
+          )}
+
+          {phase === 'error' && errorInfo && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              className="flex flex-col items-center gap-8 text-center"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                className="flex size-24 items-center justify-center rounded-full bg-stone-100"
+              >
+                <AlertCircle size={40} className="text-stone-500" />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                className="space-y-2"
+              >
+                <h1 className="text-2xl font-semibold tracking-tight text-stone-900">
+                  {errorInfo.title}
+                </h1>
+                <p className="text-sm text-stone-500">{errorInfo.body}</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
+                className="flex flex-col items-center gap-3"
+              >
+                {errorKey === 'already_booked' ? (
+                  <Link
+                    href="/account/bookings?tab=pending"
+                    className="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-700"
+                  >
+                    View your bookings
+                  </Link>
+                ) : errorKey === 'unauthorized' ? (
+                  <Link
+                    href="/auth/sign-in"
+                    className="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-700"
+                  >
+                    Sign in
+                  </Link>
+                ) : (
+                  <Link
+                    href="/search"
+                    className="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-700"
+                  >
+                    Browse properties
+                  </Link>
+                )}
               </motion.div>
             </motion.div>
           )}
