@@ -5,6 +5,7 @@ import { UserCircle, Sparkles, Home, Plane } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { cn } from '@/lib/utils'
+import { SectionHeader } from '@/components/landing/SectionHeader'
 
 const steps = [
   {
@@ -79,16 +80,12 @@ export function HowItWorksSection() {
       <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
         <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
 
-          {/* Header */}
-          <div className="text-center mb-12 md:mb-16">
-            <p className="text-sm font-bold tracking-widest text-primary uppercase mb-3">How it works</p>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4 tracking-tight">
-              Get started in 5 minutes
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              From sign-up to move-in: simple, fast, and smart.
-            </p>
-          </div>
+          <SectionHeader
+            preHeader="How it works"
+            heading="Get started in 5 minutes"
+            description="From sign-up to move-in: simple, fast, and smart."
+            className="mb-12 md:mb-16"
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 

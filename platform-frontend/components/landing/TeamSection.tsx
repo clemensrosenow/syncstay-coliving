@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { SectionHeader } from '@/components/landing/SectionHeader'
 
 const teamMembers = [
   {
@@ -35,21 +36,12 @@ export function TeamSection() {
   return (
     <section id="team" className="py-24 bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 md:mb-24"
-        >
-          <p className="text-sm font-bold tracking-widest text-primary uppercase mb-3">Our Team</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4 tracking-tight">
-            Built by nomads, for nomads
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
-            We are five DHBW Mannheim students united by a single mission: redefining how digital nomads live and connect across the globe.
-          </p>
-        </motion.div>
+        <SectionHeader
+          preHeader="Our Team"
+          heading="Built by nomads, for nomads"
+          description="We are five DHBW Mannheim students united by a single mission: redefining how digital nomads live and connect across the globe."
+          className="mb-16 md:mb-24"
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-6 gap-y-12 sm:gap-x-6 md:gap-x-12 w-full max-w-3xl mx-auto">
           {teamMembers.map((member, index) => {

@@ -14,6 +14,7 @@ import {
   CarouselPrevious,
   useCarousel,
 } from '@/components/ui/carousel'
+import { SectionHeader } from '@/components/landing/SectionHeader'
 
 import {
   Item,
@@ -77,21 +78,12 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
   return (
     <section className="py-24 bg-muted/50 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Testimonials</p>
-          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
-             Real Experiences
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            What our users say about SyncStay.
-          </p>
-        </motion.div>
+        <SectionHeader
+          preHeader="Testimonials"
+          heading="Real Experiences"
+          description="What our users say about SyncStay."
+          className="mb-12"
+        />
 
         {/* Carousel */}
         <motion.div

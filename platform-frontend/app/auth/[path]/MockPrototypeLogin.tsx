@@ -68,7 +68,7 @@ export function MockPrototypeLogin({
     mockUsers.find((user) => user.id === selectedUserId) ?? null;
 
   return (
-    <section className="mt-6 w-full max-w-sm rounded-xl border border-dashed border-border/80 bg-muted/30 p-4">
+    <section className="mt-6 w-full max-w-sm rounded-xl border border-dashed border-border/80 bg-secondary/50 p-4">
       <h3 className=" font-medium text-foreground">Prototype Access</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         Skip credentials and enter as a mock user.
@@ -86,7 +86,7 @@ export function MockPrototypeLogin({
             }}
             disabled={mockUsers.length === 0}
           >
-            <SelectTrigger className="w-full min-h-14" id="prototype-traveler">
+            <SelectTrigger className="w-full min-h-14 bg-white" id="prototype-traveler">
               <Item className="min-w-0 flex-1 border-0 px-0 py-4 text-left">
                 {selectedUser ? (
                   <ItemMedia>
