@@ -100,7 +100,7 @@ export function HeroSection({
               whileHover={{ y: -6, rotate: -2, transition: { duration: 0.3 } }}
             >
               <Image
-                src="/images/landing/Frontpage1.png"
+                src="/images/landing/digital-nomad.png"
                 alt="Remote work at the beach"
                 width={310}
                 height={400}
@@ -114,11 +114,11 @@ export function HeroSection({
               animate={{ opacity: 1, y: 0, rotate: 4 }}
               transition={{ duration: 0.8, delay: 0.55 }}
               className="absolute z-20"
-              style={{ bottom: '20px', right: '10px', width: '195px' }}
+              style={{ bottom: '30px', right: '80px', width: '225px' }}
               whileHover={{ y: -6, rotate: 2, transition: { duration: 0.3 } }}
             >
               <Image
-                src="/images/landing/Frontpage4.png"
+                src="/images/landing/surfer.png"
                 alt="Nomad lifestyle"
                 width={195}
                 height={260}
@@ -132,7 +132,7 @@ export function HeroSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.5 }}
               className="absolute z-30 bg-background rounded-2xl border border-border shadow-lg px-4 py-3 flex items-center gap-3"
-              style={{ top: '10px', right: '5px' }}
+              style={{ top: '-10px', right: '30px', rotate: '-2deg' }}
             >
               <div className="w-8 h-8 rounded-xl bg-secondary/50 flex items-center justify-center text-yellow-500">
                 <Star size={15} />
@@ -148,13 +148,13 @@ export function HeroSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.85, duration: 0.5 }}
               className="absolute z-30 bg-background rounded-2xl border border-border shadow-lg px-4 py-3 flex items-center gap-3"
-              style={{ top: '185px', right: '0px' }}
+              style={{ top: '190px', right: '0px' }}
             >
               <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                 <TrendingUp size={15} />
               </div>
               <div>
-                <p className="font-bold text-foreground text-xs">Up to 40% cheaper</p>
+                <p className="font-bold text-foreground text-xs">Up to 50% cheaper</p>
                 <p className="text-muted-foreground text-[11px]">with shared stays</p>
               </div>
             </motion.div>
