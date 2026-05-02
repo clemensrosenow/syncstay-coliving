@@ -30,7 +30,7 @@ export default function FlightsSection({ flights, locationName }: FlightsSection
         <h2 className="text-3xl font-semibold text-slate-950 leading-tight">Flights to {locationName}</h2>
         <p className="mt-2 text-base leading-7 text-stone-500">
           Starting at{' '}
-          <span className="font-semibold text-stone-700">{cheapestFlight.priceEuros}€</span>
+          <span className="font-semibold text-stone-700">{cheapestFlight.priceEuros} €</span>
           {' '}from your location
         </p>
       </div>
@@ -128,7 +128,7 @@ export default function FlightsSection({ flights, locationName }: FlightsSection
                     isCheapest ? 'text-slate-950' : 'text-stone-600'
                   }`}
                 >
-                  {flight.priceEuros}€
+                  {flight.priceEuros} €
                 </span>
               </div>
             </div>

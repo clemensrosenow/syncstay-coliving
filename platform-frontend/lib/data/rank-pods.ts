@@ -115,11 +115,16 @@ export async function rankPods(input: RankPodsRequest): Promise<RankPodsResponse
 
     for (const member of pod.members) {
       const ranking = rankingsByPropertyId.get(property.id)
+      const userId = member.user?.id ?? null
       const userName = member.user?.name ?? null
       const userImage = member.user?.image ?? null
       const profile = member.user?.profile ?? null
 
       if (!ranking || !userName || !profile) {
+        continue
+      }
+
+      if (input.excludeUserId && userId === input.excludeUserId) {
         continue
       }
 

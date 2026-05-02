@@ -35,6 +35,7 @@ export interface RankPodsRequest {
   activeUserId: string
   locationIds: string[]
   month: string
+  excludeUserId?: string
 }
 
 export interface RankPodsResponse {

@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import { Check, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { SectionHeader } from '@/components/landing/SectionHeader'
 
@@ -36,7 +35,7 @@ export function PricingSection() {
               Our fee is calculated dynamically for each transaction and covers platform operations and support.
             </p>
             <Button asChild size="lg">
-              <Link href="/auth/sign-up">
+              <Link href="/search">
                 Book stays for free
                 <ArrowRight size={16} className="ml-2" />
               </Link>

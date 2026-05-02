@@ -6,6 +6,8 @@ import { users } from "@/auth-schema"
 import { auth } from "@/lib/auth"
 import { db } from "@/db/drizzle"
 import { locations, podMembers, pods, properties } from "@/db/schema"
+import { rankPods } from "@/lib/data/rank-pods"
+import { clampMatchPercentage } from "@/app/search/lib/utils"
 
 export type BookingTab = "pending" | "committed"
 
@@ -16,6 +18,7 @@ export type BookingCard = {
   joinedAtLabel: string
   status: "OPEN" | "LOCKED" | "FULL"
   memberStatus: "PENDING" | "CONFIRMED" | "WITHDRAWN"
+  matchScore: number | null
   property: {
     id: string
     name: string
@@ -86,6 +89,7 @@ export async function getBookingsPageData(): Promise<BookingsPageData> {
       totalRooms: properties.totalRooms,
       minOccupancy: properties.minOccupancy,
       pricePerRoomCents: properties.pricePerRoomCents,
+      locationId: locations.id,
       locationName: locations.name,
       locationCountry: locations.country,
     })
@@ -102,6 +106,34 @@ export async function getBookingsPageData(): Promise<BookingsPageData> {
     .orderBy(asc(pods.month))
 
   const podIds = bookingRows.map((row) => row.podId)
+
+  // Group bookings by month to batch ranking requests
+  const monthToLocationIds = bookingRows.reduce<Map<string, Set<string>>>((map, row) => {
+    const ids = map.get(row.month) ?? new Set()
+    ids.add(row.locationId)
+    map.set(row.month, ids)
+    return map
+  }, new Map())
+
+  // Fetch rankings per unique month in parallel; key: `${propertyId}:${month}`
+  const matchScoreByPropertyMonth = new Map<string, number>()
+  await Promise.all(
+    Array.from(monthToLocationIds.entries()).map(async ([month, locationIds]) => {
+      try {
+        const { rankings } = await rankPods({
+          activeUserId: session.user.id,
+          locationIds: Array.from(locationIds),
+          month,
+          excludeUserId: session.user.id,
+        })
+        for (const ranking of rankings) {
+          matchScoreByPropertyMonth.set(`${ranking.property_id}:${month}`, ranking.match_score)
+        }
+      } catch {
+        // ranking unavailable — proceed without scores
+      }
+    })
+  )
 
   const travelerRows =
     podIds.length > 0
@@ -154,6 +186,9 @@ export async function getBookingsPageData(): Promise<BookingsPageData> {
       joinedAtLabel: formatDateLabel(row.joinedAt),
       status: row.podStatus,
       memberStatus: row.memberStatus,
+      matchScore: clampMatchPercentage(
+        matchScoreByPropertyMonth.get(`${row.propertyId}:${row.month}`) ?? 0
+      ),
       property: {
         id: row.propertyId,
         name: row.propertyName,

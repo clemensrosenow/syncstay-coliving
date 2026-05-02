@@ -62,7 +62,7 @@ export default function PropertyPreviewCard({
           {isSignedIn && <PropertyBookingProgress property={property} isSignedIn={isSignedIn} />}
 
           <div className="mt-auto flex items-end justify-between pt-4 text-sm font-medium">
-            <span className="text-base font-semibold">{property.priceBase} EUR/mo</span>
+            <span className="text-base font-semibold">{property.priceBase} €/mo</span>
           </div>
         </CardContent>
       </Card>
