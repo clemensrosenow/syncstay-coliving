@@ -55,7 +55,7 @@ function BookingRow({ booking }: { booking: BookingCard }) {
     <Link
       id={booking.podId}
       href={`/properties/${booking.property.id}?month=${booking.monthValue.slice(0, 7)}`}
-      className="group flex items-center gap-4 px-5 py-6 transition-colors hover:bg-stone-100 target:bg-green-50"
+      className="group flex items-center gap-4 scroll-mt-20 px-5 py-6 transition-colors hover:bg-stone-100 [&:target]:bg-green-50"
     >
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         {/* Heading row */}

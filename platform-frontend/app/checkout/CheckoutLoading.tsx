@@ -147,8 +147,8 @@ export default function CheckoutLoading() {
 
       setPhase('success')
 
-      const redirectUrl = `/account/bookings?tab=pending#${propertyId}-${month}`
-      setTimeout(() => router.push(redirectUrl), REDIRECT_AT - SUCCESS_AT)
+      const redirectUrl = `/account/bookings#${result.podId}`
+      setTimeout(() => { window.location.href = redirectUrl }, REDIRECT_AT - SUCCESS_AT)
     }, SUCCESS_AT)
   }, [router, propertyId, month])
 
