@@ -1,25 +1,19 @@
 import { headers } from 'next/headers'
 import { and, eq, inArray } from 'drizzle-orm'
 
+import { users } from '@/auth-schema'
 import { db } from '@/db/drizzle'
-import { locations, pods, properties } from '@/db/schema'
+import { locations, podMembers, pods, properties } from '@/db/schema'
 import { auth } from '@/lib/auth'
 import { rankPods } from '@/lib/data/rank-pods'
 
 import {
   type ParsedSearchParams,
-  type PodRanking,
   type RankPodsResponse,
   type SearchPageData,
-  type SearchProperty,
-  type PodStatus,
 } from './types'
-import {
-  clampMatchPercentage,
-  formatMonthLabel,
-  getPodSummary,
-  isInstantlyBookableOrOneAway,
-} from './utils'
+import { formatMonthLabel } from './utils'
+import { buildSearchProperties } from './search-property-mapper'
 
 async function fetchRankedPods(input: {
   activeUserId: string
@@ -33,114 +27,6 @@ async function fetchRankedPods(input: {
     console.error('Failed to fetch pod rankings:', error)
     return []
   }
-}
-
-function sortProperties(
-  propertiesToSort: SearchProperty[],
-  selectedSort: ParsedSearchParams['selectedSort']
-) {
-  return [...propertiesToSort].sort((a, b) => {
-    switch (selectedSort) {
-      case 'price-asc':
-        return a.priceBase - b.priceBase
-      case 'price-desc':
-        return b.priceBase - a.priceBase
-      case 'availability':
-        if (b.spotsLeft !== a.spotsLeft) {
-          return b.spotsLeft - a.spotsLeft
-        }
-        return (b.matchScore ?? -1) - (a.matchScore ?? -1)
-      case 'compatibility':
-      default:
-        if ((b.matchScore ?? -1) !== (a.matchScore ?? -1)) {
-          return (b.matchScore ?? -1) - (a.matchScore ?? -1)
-        }
-
-        if (a.podMemberCount !== b.podMemberCount) {
-          return b.podMemberCount - a.podMemberCount
-        }
-
-        return a.priceBase - b.priceBase
-    }
-  })
-}
-
-function buildSearchProperties(input: {
-  fetchedProperties: Array<{
-    id: string
-    locationId: string
-    name: string
-    description: string | null
-    priceBaseCents: number
-    photo: string | null
-    minOccupancy: number
-    totalRooms: number
-    locationName: string | null
-  }>
-  rankingsByProperty: Map<string, PodRanking>
-  podStatusByPropertyAndMonth: Map<string, PodStatus>
-  searchMonthValue: string
-  searchPodMonth: string
-  selectedMonthLabel: string
-  activeUserId: string | null
-  parsedParams: ParsedSearchParams
-}) {
-  const {
-    fetchedProperties,
-    rankingsByProperty,
-    podStatusByPropertyAndMonth,
-    searchMonthValue,
-    searchPodMonth,
-    selectedMonthLabel,
-    activeUserId,
-    parsedParams,
-  } = input
-
-  const mappedProperties = fetchedProperties.map((property) => {
-    const bestRanking = rankingsByProperty.get(property.id)
-    const podStatus =
-      podStatusByPropertyAndMonth.get(`${property.id}:${searchPodMonth}`) ?? null
-    const podMemberCount = bestRanking?.members.length ?? 0
-    const spotsLeft =
-      podStatus === 'FULL' ? 0 : Math.max(property.totalRooms - podMemberCount, 0)
-
-    return {
-      ...property,
-      bookingMonth: searchMonthValue,
-      podStatus,
-      priceBase: Math.round(property.priceBaseCents / 100),
-      matchScore: bestRanking ? clampMatchPercentage(bestRanking.match_score) : null,
-      podMembers: bestRanking?.members ?? [],
-      podSummary: getPodSummary(
-        podMemberCount,
-        property.minOccupancy,
-        selectedMonthLabel,
-        Boolean(activeUserId)
-      ),
-      podMemberCount,
-      spotsLeft,
-    }
-  })
-
-  const filteredProperties = mappedProperties.filter((property) => {
-    const isWithinBudget =
-      property.priceBase >= parsedParams.normalizedBudgetMin &&
-      property.priceBase <= parsedParams.normalizedBudgetMax
-
-    const passesAvailabilityFilter =
-      parsedParams.showFullPods || property.podStatus !== 'FULL'
-    const passesBookableFilter =
-      !parsedParams.onlyBookable ||
-      isInstantlyBookableOrOneAway({
-        podStatus: property.podStatus,
-        podMemberCount: property.podMemberCount,
-        minOccupancy: property.minOccupancy,
-      })
-
-    return isWithinBudget && passesAvailabilityFilter && passesBookableFilter
-  })
-
-  return sortProperties(filteredProperties, parsedParams.selectedSort)
 }
 
 export async function getSearchPageData(
@@ -213,6 +99,7 @@ export async function getSearchPageData(
     propertyIds.length > 0
       ? db
         .select({
+          id: pods.id,
           propertyId: pods.propertyId,
           month: pods.month,
           status: pods.status,
@@ -226,6 +113,30 @@ export async function getSearchPageData(
   ])
 
   const activeUserId = session?.user?.id ?? null
+  const podIds = podRows.map((pod) => pod.id)
+
+  const memberRows =
+    podIds.length > 0
+      ? await db
+        .select({
+          podId: podMembers.podId,
+          propertyId: pods.propertyId,
+          month: pods.month,
+          name: users.name,
+          image: users.image,
+          joinedAt: podMembers.joinedAt,
+        })
+        .from(podMembers)
+        .innerJoin(pods, eq(pods.id, podMembers.podId))
+        .innerJoin(users, eq(users.id, podMembers.userId))
+        .where(
+          and(
+            inArray(podMembers.podId, podIds),
+            inArray(podMembers.status, ['PENDING', 'CONFIRMED'])
+          )
+        )
+      : []
+
   const requestedLocationIds = parsedParams.locationFilters
     .map((slug) => locationIdsBySlug.get(slug))
     .filter((locationId): locationId is string => Boolean(locationId))
@@ -243,10 +154,39 @@ export async function getSearchPageData(
     podRankings.map((ranking) => [ranking.property_id, ranking])
   )
 
-  const podStatusByPropertyAndMonth = podRows.reduce<Map<string, PodStatus>>((map, pod) => {
-    map.set(`${pod.propertyId}:${pod.month}`, pod.status)
+  const podByPropertyAndMonth = podRows.reduce<
+    Map<
+      string,
+      {
+        status: (typeof podRows)[number]['status']
+        members: Array<{ name: string; image: string | null; score: number }>
+      }
+    >
+  >((map, pod) => {
+    map.set(`${pod.propertyId}:${pod.month}`, {
+      status: pod.status,
+      members: [],
+    })
     return map
   }, new Map())
+
+  const sortedMemberRows = [...memberRows].sort(
+    (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
+  )
+
+  for (const member of sortedMemberRows) {
+    const podSnapshot = podByPropertyAndMonth.get(`${member.propertyId}:${member.month}`)
+
+    if (!podSnapshot) {
+      continue
+    }
+
+    podSnapshot.members.push({
+      name: member.name,
+      image: member.image,
+      score: 0,
+    })
+  }
 
   return {
     availableLocations,
@@ -263,7 +203,7 @@ export async function getSearchPageData(
     properties: buildSearchProperties({
       fetchedProperties,
       rankingsByProperty,
-      podStatusByPropertyAndMonth,
+      podByPropertyAndMonth,
       searchMonthValue,
       searchPodMonth,
       selectedMonthLabel,
