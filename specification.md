@@ -10,7 +10,7 @@ A prototype travel platform designed to optimize long-term stays for digital nom
 * **Database:** Neon.tech (Serverless Postgres with the `pgvector` extension)
 * **ORM:** Drizzle ORM *(Schema definition pending next phase)*
 * **AI Microservice:** FastAPI (Python)
-* **AI Models:** External LLM & Embedding APIs (e.g., Google Gemini or OpenAI)
+* **AI Models:** External LLM & Embedding APIs (OpenAI)
 
 ## 3. Core UX Flow (The "Gravity" Pod-First Model)
 The platform operates on fixed constraints to eliminate complex matching math. 
