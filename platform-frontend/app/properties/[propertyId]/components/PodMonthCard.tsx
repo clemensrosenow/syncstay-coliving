@@ -6,6 +6,7 @@ import {
   Sparkles,
   SunMedium,
 } from 'lucide-react'
+import Link from 'next/link'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item'
@@ -92,16 +93,20 @@ export default function PodMonthCard({ pod, minOccupancy, totalRooms, isSignedIn
                 {index > 0 ? <ItemSeparator key={`sep-${member.userId}`} /> : null}
                 <Item key={`${pod.podId}-${member.userId}`} className="!px-0 rounded-none items-start">
                   <ItemMedia variant="image">
-                    <Avatar className="border border-stone-200 size-10">
-                      <AvatarImage src={member.image ?? undefined} alt={member.name} />
-                      <AvatarFallback className="bg-stone-100 font-semibold text-stone-600 text-sm">
-                        {getMemberInitials(member.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <Link href={`/account/profile/${member.userId}`}>
+                      <Avatar className="border border-stone-200 size-10">
+                        <AvatarImage src={member.image ?? undefined} alt={member.name} />
+                        <AvatarFallback className="bg-stone-100 font-semibold text-stone-600 text-sm">
+                          {getMemberInitials(member.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
                   </ItemMedia>
                   <ItemContent>
                     <ItemTitle className='items-baseline gap-2'>
-                      {member.name}
+                      <Link href={`/account/profile/${member.userId}`} className="hover:underline">
+                        {member.name}
+                      </Link>
                       <span className="text-xs font-normal text-stone-400">{member.age}</span>
                     </ItemTitle>
                     <ItemDescription>{jobLocation}</ItemDescription>
