@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = {
+type NavItem = { label: string; href?: string };
+
+const links: Record<string, NavItem[]> = {
   Product: [
     { label: "How it works", href: "/#how-it-works" },
     { label: "About us", href: "/#team" },

@@ -221,7 +221,7 @@ export async function getPropertyDetailData(input: {
       workEndHour: row.workEndHour,
       workStyle: row.workStyle,
       tags: row.profileId ? (tagsByProfileId.get(row.profileId) ?? []) : [],
-      status: row.status,
+      status: row.status as "PENDING" | "CONFIRMED",
       compatibilityNote: null,
     })
     map.set(row.podId, existingMembers)

@@ -38,10 +38,15 @@ export async function prototypeLoginAction(
     authContext.secret,
   )}`;
   const sessionCookie = authContext.authCookies.sessionToken;
-  const sameSite =
-    typeof sessionCookie.attributes.sameSite === "string"
-      ? sessionCookie.attributes.sameSite.toLowerCase()
-      : sessionCookie.attributes.sameSite;
+  const rawSameSite = sessionCookie.attributes.sameSite;
+  const sameSiteStr =
+    typeof rawSameSite === "string" ? rawSameSite.toLowerCase() : undefined;
+  const sameSite: boolean | "strict" | "lax" | "none" | undefined =
+    typeof rawSameSite === "boolean"
+      ? rawSameSite
+      : sameSiteStr === "strict" || sameSiteStr === "lax" || sameSiteStr === "none"
+        ? sameSiteStr
+        : undefined;
 
   const cookieStore = await cookies();
 
